@@ -1,0 +1,3481 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>関係詞・接続詞マスター</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', 'Noto Sans JP', sans-serif;
+            background-color: #f8fafc;
+            color: #1e293b;
+        }
+        .word-chip {
+            transition: all 0.15s ease;
+            user-select: none;
+        }
+        .word-chip:active {
+            transform: scale(0.95);
+        }
+        .fade-in {
+            animation: fadeIn 0.25s ease-out forwards;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-indigo-600 text-white shadow-md sticky top-0 z-30">
+        <div class="max-w-5xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-2">
+            <div class="flex items-center space-x-3 cursor-pointer" onclick="app.showDashboard()">
+                <div class="bg-white text-indigo-600 p-2 rounded-xl shadow-sm font-bold text-lg leading-none flex items-center justify-center w-10 h-10">
+                    <i class="fa-solid fa-bolt"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg md:text-xl tracking-tight leading-tight">関係詞・接続詞　実践演習 <span class="text-indigo-200 text-sm font-normal">マスター</span></h1>
+                    <p class="text-xs text-indigo-200">全471問 完全収録・徹底解説マスター</p>
+                </div>
+            </div>
+
+            <div class="flex items-center space-x-2 sm:space-x-3">
+                <div id="sync-status" class="flex items-center space-x-1.5 bg-indigo-700/80 px-3 py-1.5 rounded-full text-xs">
+                    <i id="sync-icon" class="fa-solid fa-cloud text-emerald-300"></i>
+                    <span id="sync-text">保存準備中...</span>
+                </div>
+                <button onclick="app.openJumpModal()" class="bg-indigo-500 hover:bg-indigo-400 text-white px-3 py-1.5 rounded-xl text-xs sm:text-sm font-medium transition flex items-center gap-1.5 shadow-sm">
+                    <i class="fa-solid fa-list-ol"></i> <span class="hidden sm:inline">問題一覧・ジャンプ</span>
+                </button>
+                <button onclick="app.showDashboard()" class="bg-white text-indigo-600 hover:bg-indigo-50 px-3 py-1.5 rounded-xl text-xs sm:text-sm font-bold transition flex items-center gap-1.5 shadow-sm">
+                    <i class="fa-solid fa-house"></i> <span class="hidden sm:inline">ホーム</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="flex-grow max-w-5xl w-full mx-auto px-4 py-6">
+
+        <!-- VIEW: DASHBOARD -->
+        <div id="view-dashboard" class="space-y-6 fade-in">
+            <!-- Hero Stats Card -->
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 sm:p-6">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-slate-100">
+                    <div>
+                        <span class="inline-block bg-indigo-100 text-indigo-700 text-xs font-bold px-2.5 py-1 rounded-full mb-2">高校英文法・構文演習</span>
+                        <h2 class="text-xl sm:text-2xl font-bold text-slate-800">学習ダッシュボード</h2>
+                        <p class="text-sm text-slate-500 mt-1">関係詞・接続詞・重要構文の471問。いつでも途中から再開できます。</p>
+                    </div>
+                    <div id="resume-container" class="hidden">
+                        <button onclick="app.resumeLastSession()" class="w-full md:w-auto bg-amber-500 hover:bg-amber-600 text-white font-bold px-5 py-3 rounded-xl shadow-md transition flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-play"></i>
+                            <div class="text-left">
+                                <div class="text-xs opacity-90">前回の続きから再開</div>
+                                <div id="resume-label" class="text-sm">問題 (1) から</div>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Progress Metrics -->
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mt-6">
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-100">
+                        <div class="text-xs text-slate-500 font-medium">全体の進捗率</div>
+                        <div class="flex items-baseline gap-2 mt-1">
+                            <span id="stat-total-percent" class="text-2xl sm:text-3xl font-bold text-indigo-600">0%</span>
+                            <span id="stat-total-count" class="text-xs text-slate-400">0 / 471問</span>
+                        </div>
+                        <div class="w-full bg-slate-200 h-2 rounded-full mt-2 overflow-hidden">
+                            <div id="stat-total-bar" class="bg-indigo-600 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <div class="bg-emerald-50/70 p-4 rounded-xl border border-emerald-100">
+                        <div class="text-xs text-emerald-700 font-medium flex items-center gap-1">
+                            <i class="fa-solid fa-circle-check"></i> マスター済み (正解)
+                        </div>
+                        <div class="mt-1">
+                            <span id="stat-correct-count" class="text-2xl sm:text-3xl font-bold text-emerald-600">0</span>
+                            <span class="text-xs text-emerald-600">問</span>
+                        </div>
+                        <p class="text-[11px] text-emerald-600/80 mt-2">自力で正解した問題数</p>
+                    </div>
+
+                    <div class="bg-rose-50/70 p-4 rounded-xl border border-rose-100">
+                        <div class="text-xs text-rose-700 font-medium flex items-center gap-1">
+                            <i class="fa-solid fa-rotate-left"></i> 要復習 (ミス・未定着)
+                        </div>
+                        <div class="mt-1">
+                            <span id="stat-incorrect-count" class="text-2xl sm:text-3xl font-bold text-rose-600">0</span>
+                            <span class="text-xs text-rose-600">問</span>
+                        </div>
+                        <p class="text-[11px] text-rose-600/80 mt-2">間違えた問題のリスト</p>
+                    </div>
+
+                    <div class="bg-amber-50/70 p-4 rounded-xl border border-amber-100">
+                        <div class="text-xs text-amber-700 font-medium flex items-center gap-1">
+                            <i class="fa-solid fa-star"></i> ブックマーク
+                        </div>
+                        <div class="mt-1">
+                            <span id="stat-bookmark-count" class="text-2xl sm:text-3xl font-bold text-amber-600">0</span>
+                            <span class="text-xs text-amber-600">問</span>
+                        </div>
+                        <p class="text-[11px] text-amber-600/80 mt-2">テスト前に見直す問題</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Review & Special Modes -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <button onclick="app.startSpecialMode('incorrect')" id="btn-mode-incorrect" class="bg-white hover:bg-rose-50/40 p-5 rounded-2xl shadow-sm border border-rose-200 text-left transition flex items-center justify-between group">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-xl bg-rose-100 text-rose-600 flex items-center justify-center text-xl font-bold group-hover:scale-105 transition">
+                            <i class="fa-solid fa-fire-flame-curved"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-slate-800 group-hover:text-rose-600 transition">弱点克服モード</h3>
+                            <p class="text-xs text-slate-500 mt-0.5">間違えた問題だけを集中特訓</p>
+                        </div>
+                    </div>
+                    <span id="badge-incorrect" class="bg-rose-100 text-rose-700 font-bold text-xs px-3 py-1 rounded-full">0問</span>
+                </button>
+
+                <button onclick="app.startSpecialMode('bookmarked')" id="btn-mode-bookmarked" class="bg-white hover:bg-amber-50/40 p-5 rounded-2xl shadow-sm border border-amber-200 text-left transition flex items-center justify-between group">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-xl bg-amber-100 text-amber-600 flex items-center justify-center text-xl font-bold group-hover:scale-105 transition">
+                            <i class="fa-solid fa-bookmark"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-slate-800 group-hover:text-amber-600 transition">ブックマーク復習</h3>
+                            <p class="text-xs text-slate-500 mt-0.5">チェックした重要問題を復習</p>
+                        </div>
+                    </div>
+                    <span id="badge-bookmarked" class="bg-amber-100 text-amber-700 font-bold text-xs px-3 py-1 rounded-full">0問</span>
+                </button>
+
+                <button onclick="app.startSpecialMode('random10')" class="bg-white hover:bg-indigo-50/40 p-5 rounded-2xl shadow-sm border border-indigo-200 text-left transition flex items-center justify-between group">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center text-xl font-bold group-hover:scale-105 transition">
+                            <i class="fa-solid fa-shuffle"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-slate-800 group-hover:text-indigo-600 transition">実力診断ミニテスト</h3>
+                            <p class="text-xs text-slate-500 mt-0.5">未達成からランダムに10問出題</p>
+                        </div>
+                    </div>
+                    <span class="bg-indigo-100 text-indigo-700 font-bold text-xs px-3 py-1 rounded-full">10問</span>
+                </button>
+            </div>
+
+            <!-- Section Selection Cards -->
+            <div class="space-y-4">
+                <div class="flex items-center justify-between">
+                    <h3 class="font-bold text-lg text-slate-800 flex items-center gap-2">
+                        <i class="fa-solid fa-layer-group text-indigo-600"></i> パート別演習（問題形式ごと）
+                    </h3>
+                    <button onclick="app.openResetModal()" class="text-xs text-slate-400 hover:text-rose-500 transition flex items-center gap-1">
+                        <i class="fa-solid fa-trash-can"></i> 学習履歴をリセット
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Section A -->
+                    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 flex flex-col justify-between hover:border-indigo-300 transition">
+                        <div>
+                            <div class="flex items-center justify-between gap-2 mb-3">
+                                <span class="bg-blue-100 text-blue-700 font-bold text-xs px-3 py-1 rounded-full">Part [ A ] 整序問題</span>
+                                <span class="text-xs font-medium text-slate-400">問題 (1) 〜 (135)</span>
+                            </div>
+                            <h4 class="font-bold text-slate-800 text-base">語句整序（並べかえ）演習</h4>
+                            <p class="text-xs text-slate-500 mt-1">単語チップをタップして正しい語順に並べかえるパズル形式。構文の骨格が身につきます。</p>
+                            <div class="mt-4">
+                                <div class="flex justify-between text-xs mb-1">
+                                    <span class="text-slate-500">達成率</span>
+                                    <span id="prog-text-A" class="font-bold text-blue-600">0 / 135 (0%)</span>
+                                </div>
+                                <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                                    <div id="prog-bar-A" class="bg-blue-600 h-full rounded-full transition-all" style="width: 0%"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-5 pt-4 border-t border-slate-100 flex gap-2">
+                            <button onclick="app.startSection('A', false)" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-4 rounded-xl text-xs sm:text-sm transition">
+                                最初から / 続きから
+                            </button>
+                            <button onclick="app.startSection('A', true)" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium py-2.5 px-3 rounded-xl text-xs sm:text-sm transition" title="未正解の問題のみ">
+                                未クリアのみ
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Section B -->
+                    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 flex flex-col justify-between hover:border-indigo-300 transition">
+                        <div>
+                            <div class="flex items-center justify-between gap-2 mb-3">
+                                <span class="bg-purple-100 text-purple-700 font-bold text-xs px-3 py-1 rounded-full">Part [ B ] 同意文書き換え</span>
+                                <span class="text-xs font-medium text-slate-400">問題 (136) 〜 (142)</span>
+                            </div>
+                            <h4 class="font-bold text-slate-800 text-base">(a)(b) 同意表現の空所補充</h4>
+                            <p class="text-xs text-slate-500 mt-1">2つの英文がほぼ同じ意味になるように適切な語を入力・選択します。入試頻出の書き換え問題。</p>
+                            <div class="mt-4">
+                                <div class="flex justify-between text-xs mb-1">
+                                    <span class="text-slate-500">達成率</span>
+                                    <span id="prog-text-B" class="font-bold text-purple-600">0 / 7 (0%)</span>
+                                </div>
+                                <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                                    <div id="prog-bar-B" class="bg-purple-600 h-full rounded-full transition-all" style="width: 0%"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-5 pt-4 border-t border-slate-100 flex gap-2">
+                            <button onclick="app.startSection('B', false)" class="flex-1 bg-purple-600 hover:bg-purple-700 text-white font-bold py-2.5 px-4 rounded-xl text-xs sm:text-sm transition">
+                                最初から / 続きから
+                            </button>
+                            <button onclick="app.startSection('B', true)" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium py-2.5 px-3 rounded-xl text-xs sm:text-sm transition">
+                                未クリアのみ
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Section C -->
+                    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 flex flex-col justify-between hover:border-indigo-300 transition">
+                        <div>
+                            <div class="flex items-center justify-between gap-2 mb-3">
+                                <span class="bg-emerald-100 text-emerald-700 font-bold text-xs px-3 py-1 rounded-full">Part [ C ] 四択問題</span>
+                                <span class="text-xs font-medium text-slate-400">問題 (143) 〜 (351)</span>
+                            </div>
+                            <h4 class="font-bold text-slate-800 text-base">空所補充 4択クイズ</h4>
+                            <p class="text-xs text-slate-500 mt-1">センター試験・共通テストや有名私大の過去問を含む209問。テンポよく文法判断力を鍛えます。</p>
+                            <div class="mt-4">
+                                <div class="flex justify-between text-xs mb-1">
+                                    <span class="text-slate-500">達成率</span>
+                                    <span id="prog-text-C" class="font-bold text-emerald-600">0 / 209 (0%)</span>
+                                </div>
+                                <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                                    <div id="prog-bar-C" class="bg-emerald-600 h-full rounded-full transition-all" style="width: 0%"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-5 pt-4 border-t border-slate-100 flex gap-2">
+                            <button onclick="app.startSection('C', false)" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-4 rounded-xl text-xs sm:text-sm transition">
+                                最初から / 続きから
+                            </button>
+                            <button onclick="app.startSection('C', true)" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium py-2.5 px-3 rounded-xl text-xs sm:text-sm transition">
+                                未クリアのみ
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Section D -->
+                    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 flex flex-col justify-between hover:border-indigo-300 transition">
+                        <div>
+                            <div class="flex items-center justify-between gap-2 mb-3">
+                                <span class="bg-amber-100 text-amber-700 font-bold text-xs px-3 py-1 rounded-full">Part [ D ] 空所補充・記述</span>
+                                <span class="text-xs font-medium text-slate-400">問題 (352) 〜 (471)</span>
+                            </div>
+                            <h4 class="font-bold text-slate-800 text-base">和文英訳・空所記述マスター</h4>
+                            <p class="text-xs text-slate-500 mt-1">日本語訳に合わせて空所に適切な英語を入力します（スマホで解きやすいヒント・選択補助モード付き）。</p>
+                            <div class="mt-4">
+                                <div class="flex justify-between text-xs mb-1">
+                                    <span class="text-slate-500">達成率</span>
+                                    <span id="prog-text-D" class="font-bold text-amber-600">0 / 120 (0%)</span>
+                                </div>
+                                <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                                    <div id="prog-bar-D" class="bg-amber-500 h-full rounded-full transition-all" style="width: 0%"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-5 pt-4 border-t border-slate-100 flex gap-2">
+                            <button onclick="app.startSection('D', false)" class="flex-1 bg-amber-500 hover:bg-amber-600 text-white font-bold py-2.5 px-4 rounded-xl text-xs sm:text-sm transition">
+                                最初から / 続きから
+                            </button>
+                            <button onclick="app.startSection('D', true)" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium py-2.5 px-3 rounded-xl text-xs sm:text-sm transition">
+                                未クリアのみ
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- VIEW: QUIZ -->
+        <div id="view-quiz" class="hidden space-y-5 fade-in">
+            <!-- Top Quiz Bar -->
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 flex flex-wrap items-center justify-between gap-3">
+                <div class="flex items-center gap-2.5">
+                    <span id="quiz-part-badge" class="bg-indigo-100 text-indigo-700 font-bold text-xs px-3 py-1 rounded-full">Part A</span>
+                    <span id="quiz-q-number" class="font-bold text-slate-800 text-base sm:text-lg">問題 (1)</span>
+                    <span id="quiz-source-badge" class="hidden bg-slate-100 text-slate-600 text-xs px-2.5 py-0.5 rounded-md font-medium"></span>
+                    <span id="quiz-status-pill" class="text-xs px-2 py-0.5 rounded-full font-medium hidden"></span>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <span id="quiz-queue-progress" class="text-xs text-slate-500 font-medium mr-2">1 / 135</span>
+                    <button onclick="app.toggleBookmarkCurrent()" id="btn-bookmark" class="p-2 rounded-xl border border-slate-200 text-slate-400 hover:text-amber-500 hover:bg-amber-50 transition" title="ブックマーク">
+                        <i class="fa-solid fa-star"></i>
+                    </button>
+                    <button onclick="app.prevQuestion()" id="btn-prev-q" class="px-3 py-1.5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-100 text-xs font-bold transition disabled:opacity-40">
+                        <i class="fa-solid fa-chevron-left"></i> 前へ
+                    </button>
+                    <button onclick="app.nextQuestion()" id="btn-next-q" class="px-3 py-1.5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-100 text-xs font-bold transition disabled:opacity-40">
+                        次へ <i class="fa-solid fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Question Card -->
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 sm:p-7 space-y-6">
+                <!-- Instruction & Japanese Translation -->
+                <div class="space-y-2">
+                    <div id="quiz-instruction" class="text-xs font-bold text-indigo-600 tracking-wide uppercase">
+                        （　）内の語句を並べかえて英文を完成させなさい。
+                    </div>
+                    <div id="quiz-jp-box" class="bg-slate-50 border-l-4 border-indigo-500 p-3.5 sm:p-4 rounded-r-xl text-slate-800 text-sm sm:text-base font-medium leading-relaxed">
+                        <!-- Japanese translation goes here -->
+                    </div>
+                </div>
+
+                <!-- English Prompt Sentence -->
+                <div id="quiz-en-prompt" class="text-base sm:text-lg font-semibold text-slate-800 leading-relaxed bg-indigo-50/40 p-4 rounded-xl border border-indigo-100/80">
+                    <!-- English prompt goes here -->
+                </div>
+
+                <!-- INTERACTION AREA: PART A (Scrambled Words) -->
+                <div id="area-part-a" class="hidden space-y-4">
+                    <div id="part-a-extra-note" class="hidden text-xs font-bold text-rose-600 bg-rose-50 px-3 py-1.5 rounded-lg inline-block">
+                        <i class="fa-solid fa-triangle-exclamation mr-1"></i> 注意：不要な語が1語含まれています！
+                    </div>
+
+                    <!-- Selected Words Box -->
+                    <div>
+                        <div class="flex justify-between items-center text-xs text-slate-500 mb-1.5">
+                            <span>あなたの解答（単語をタップすると戻せます）：</span>
+                            <button onclick="app.clearScrambled()" class="text-slate-400 hover:text-rose-500 font-medium transition">
+                                <i class="fa-solid fa-rotate-left"></i> すべてクリア
+                            </button>
+                        </div>
+                        <div id="part-a-answer-zone" class="min-h-[68px] p-3.5 rounded-xl bg-slate-50 border-2 border-dashed border-slate-300 flex flex-wrap items-center gap-2 transition">
+                            <span id="part-a-placeholder" class="text-xs sm:text-sm text-slate-400 select-none">下の語群から順番にタップして英文を作ってください</span>
+                        </div>
+                    </div>
+
+                    <!-- Word Pool -->
+                    <div>
+                        <div class="text-xs text-slate-500 mb-2">語群（タップして選択）：</div>
+                        <div id="part-a-pool" class="flex flex-wrap gap-2">
+                            <!-- Word chips injected here -->
+                        </div>
+                    </div>
+
+                    <div class="pt-2 flex flex-wrap gap-3">
+                        <button onclick="app.checkAnswerA()" id="btn-submit-a" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-xl shadow-sm transition flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-check"></i> 解答を判定する
+                        </button>
+                        <button onclick="app.giveUpCurrent()" class="bg-slate-100 hover:bg-slate-200 text-slate-600 font-medium py-3 px-4 rounded-xl text-sm transition">
+                            解答・解説を見る
+                        </button>
+                    </div>
+                </div>
+
+                <!-- INTERACTION AREA: PART C (Multiple Choice) -->
+                <div id="area-part-c" class="hidden space-y-3">
+                    <div id="part-c-options" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <!-- 4 options injected here -->
+                    </div>
+                    <div class="pt-2 flex justify-end">
+                        <button onclick="app.giveUpCurrent()" class="text-xs text-slate-400 hover:text-slate-600 underline">
+                            わからなかったので解説を見る
+                        </button>
+                    </div>
+                </div>
+
+                <!-- INTERACTION AREA: PART B & D (Fill in the blank) -->
+                <div id="area-part-bd" class="hidden space-y-4">
+                    <div class="flex flex-wrap items-center justify-between gap-2">
+                        <label class="text-xs font-bold text-slate-600">空所に入る英単語を入力してください：</label>
+                        <button onclick="app.showWordBankHint()" id="btn-bd-hint" class="text-xs bg-amber-100 hover:bg-amber-200 text-amber-800 font-bold px-3 py-1 rounded-lg transition flex items-center gap-1">
+                            <i class="fa-solid fa-lightbulb"></i> 語群ヒントを表示（タップ入力）
+                        </button>
+                    </div>
+
+                    <div id="bd-inputs-container" class="flex flex-wrap gap-3">
+                        <!-- Input boxes injected here -->
+                    </div>
+
+                    <!-- Optional Word Bank for mobile ease -->
+                    <div id="bd-word-bank" class="hidden bg-amber-50/70 p-3.5 rounded-xl border border-amber-200 space-y-2">
+                        <div class="text-xs text-amber-800 font-medium">タップすると空欄に入力されます：</div>
+                        <div id="bd-bank-chips" class="flex flex-wrap gap-2"></div>
+                    </div>
+
+                    <div class="pt-2 flex flex-wrap gap-3">
+                        <button onclick="app.checkAnswerBD()" id="btn-submit-bd" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-xl shadow-sm transition flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-check"></i> 解答を判定する
+                        </button>
+                        <button onclick="app.giveUpCurrent()" class="bg-slate-100 hover:bg-slate-200 text-slate-600 font-medium py-3 px-4 rounded-xl text-sm transition">
+                            解答・解説を見る
+                        </button>
+                    </div>
+                </div>
+
+                <!-- FEEDBACK & DETAILED EXPLANATION AREA -->
+                <div id="area-feedback" class="hidden pt-6 border-t border-slate-200 space-y-4 fade-in">
+                    <div id="feedback-banner" class="p-4 rounded-xl flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div id="feedback-icon" class="w-10 h-10 rounded-full flex items-center justify-center text-xl font-bold"></div>
+                            <div>
+                                <h4 id="feedback-title" class="font-bold text-base"></h4>
+                                <p id="feedback-subtitle" class="text-xs opacity-90"></p>
+                            </div>
+                        </div>
+                        <button onclick="app.nextQuestion()" class="bg-slate-900 hover:bg-slate-800 text-white font-bold px-5 py-2.5 rounded-xl text-xs sm:text-sm transition flex items-center gap-2 shadow-sm">
+                            次の問題へ <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                    </div>
+
+                    <!-- Complete Sentence & Audio -->
+                    <div class="bg-slate-50 rounded-xl p-4 border border-slate-200 space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold text-slate-400 uppercase">完成した英文・正解</span>
+                            <button onclick="app.speakCurrentSentence()" class="text-xs bg-indigo-100 hover:bg-indigo-200 text-indigo-700 font-bold px-3 py-1 rounded-lg transition flex items-center gap-1.5">
+                                <i class="fa-solid fa-volume-high"></i> 英文を読み上げる
+                            </button>
+                        </div>
+                        <p id="exp-full-sentence" class="text-base sm:text-lg font-bold text-slate-800 leading-relaxed"></p>
+                        <p id="exp-jp-translation" class="text-xs sm:text-sm text-slate-600"></p>
+                    </div>
+
+                    <!-- Detailed Grammar Explanation Box -->
+                    <div class="bg-indigo-50/60 rounded-xl p-4 sm:p-5 border border-indigo-100 space-y-3">
+                        <div class="flex items-center gap-2">
+                            <span class="bg-indigo-600 text-white text-xs font-bold px-2.5 py-1 rounded-md">重要構文・文法ポイント</span>
+                            <span id="exp-grammar-title" class="font-bold text-indigo-950 text-sm sm:text-base"></span>
+                        </div>
+                        <div id="exp-grammar-body" class="text-xs sm:text-sm text-slate-700 leading-relaxed space-y-2"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- MODAL: QUESTION LIST & JUMP -->
+    <div id="modal-jump" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-3xl w-full max-h-[85vh] flex flex-col shadow-xl overflow-hidden fade-in">
+            <div class="p-4 sm:p-5 border-b border-slate-200 flex items-center justify-between">
+                <div>
+                    <h3 class="font-bold text-lg text-slate-800">問題一覧・ジャンプ (全471問)</h3>
+                    <p class="text-xs text-slate-500">問題番号をタップするとその問題へ直接移動します。</p>
+                </div>
+                <button onclick="app.closeJumpModal()" class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <!-- Filter Tabs -->
+            <div class="px-4 py-2.5 bg-slate-50 border-b border-slate-200 flex flex-wrap items-center justify-between gap-2 text-xs">
+                <div class="flex flex-wrap gap-1.5">
+                    <button onclick="app.renderJumpGrid('ALL')" class="jump-tab px-3 py-1.5 rounded-lg font-bold bg-indigo-600 text-white" data-tab="ALL">すべて(471)</button>
+                    <button onclick="app.renderJumpGrid('A')" class="jump-tab px-3 py-1.5 rounded-lg font-medium bg-white border border-slate-200 text-slate-600" data-tab="A">[A] 1-135</button>
+                    <button onclick="app.renderJumpGrid('B')" class="jump-tab px-3 py-1.5 rounded-lg font-medium bg-white border border-slate-200 text-slate-600" data-tab="B">[B] 136-142</button>
+                    <button onclick="app.renderJumpGrid('C')" class="jump-tab px-3 py-1.5 rounded-lg font-medium bg-white border border-slate-200 text-slate-600" data-tab="C">[C] 143-351</button>
+                    <button onclick="app.renderJumpGrid('D')" class="jump-tab px-3 py-1.5 rounded-lg font-medium bg-white border border-slate-200 text-slate-600" data-tab="D">[D] 352-471</button>
+                </div>
+                <div class="flex items-center gap-3 text-[11px] text-slate-500">
+                    <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block"></span> 正解済</span>
+                    <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-rose-500 inline-block"></span> 要復習</span>
+                    <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-slate-200 inline-block"></span> 未着手</span>
+                </div>
+            </div>
+
+            <div id="jump-grid-container" class="p-4 overflow-y-auto grid grid-cols-6 sm:grid-cols-10 md:grid-cols-12 gap-2">
+                <!-- Question buttons generated here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: RESET CONFIRMATION -->
+    <div id="modal-reset" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl space-y-4 fade-in">
+            <div class="w-12 h-12 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center text-xl">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <h3 class="font-bold text-lg text-slate-800">学習履歴をリセットしますか？</h3>
+            <p class="text-sm text-slate-600 leading-relaxed">
+                これまでの正解記録、要復習リスト、ブックマークがすべて初期化されます。この操作は取り消せません。
+            </p>
+            <div class="flex justify-end gap-3 pt-2">
+                <button onclick="app.closeResetModal()" class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-medium">キャンセル</button>
+                <button onclick="app.confirmReset()" class="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-sm font-bold">リセットを実行</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-5 right-5 bg-slate-900 text-white px-4 py-3 rounded-xl shadow-lg text-xs sm:text-sm font-medium hidden items-center gap-2 z-50">
+        <i class="fa-solid fa-circle-info text-indigo-400"></i>
+        <span id="toast-msg"></span>
+    </div>
+
+    <!-- RAW DATA FOR PARSING ALL 471 QUESTIONS -->
+    <script id="raw-questions-data" type="text/plain">
+[ A ]
+(1)	この部屋では上着を脱ぎなさい，そうしないと汗をかきますよ。
+( your coat / or / in this room, / sweat / take off / you will ).
+(2)	どんなに社長ががんばっても，会社は最近の不景気のせいで破産するのではないかと私は思う。
+I'm afraid that ( matter / hard / may try / no / the president / how ), the company will go bankrupt owing to the recent economic recession.
+(3)	彼はロシア語が話せないと言ったが，本当ではなかった。
+( speak Russian, / which / he couldn't / he said / untrue / was ).
+(4)	私が知る限りでは，彼女はもうそこで働いていない。
+( as I know, / no longer / there / as far / works / she ).
+(5)	テストに受かるためにがんばって勉強しなければならない生徒がたくさんいる。
+( work hard / who / a lot of / have to / there are / students ) to pass the test.
+(6)	この女性がレースに勝つだろうということは間違いない。
+( no doubt / is going to / this woman / that / win the race / there's ).
+(7)	教授はその生徒に「私が講義で言及した部分を読みなさい」と厳しく言った。
+The professor sternly told the student, "( the passage / in my lecture / which / I referred / read / to )."
+(8)	これらは，彼が自分の家を建てるのに使った道具類です。
+( the tools / he built / which / these are / his own house / with ).
+(9)	その知らせに，彼女はあまりにもショックを受けたので，もう少しで気絶するところだった。
+The ( a / gave / her / news / she / shock / such / that ) nearly fainted.　〈金沢工業大〉
+(10)	夜に寒くなるといけないから，このセーターを持って行きなさい。
+Take this sweater with you ( cold / case / it / get / in / should ) in the evening.　〈獨協大〉
+(11)	あなたがすぐ返してくれるなら，その本をお貸しするのはかまいませんよ。
+( lending you / you give it / provided / I don't mind / back soon / the book ).
+(12)	子どもにはよくあることだが，フレッドは医師が到着するまでには回復してしまっていた。
+( with / case / is / the / as / often / children ), Fred had recovered by the time the doctor arrived.
+(13)	どうぞお気軽にご連絡ください。喜んで私にできる手助けをさせていただきます。
+Please feel free to contact me. ( help / to give / what / I can / willing / you / I'm ).
+(14)	彼らが帰ったらすぐ連絡してほしいと彼女は私に依頼した。
+She asked ( to / contact / moment / her / the / me ) they returned.
+(15)	マイクはコーヒーも紅茶も好きではない。
+( nor tea / likes / coffee / Mike / neither ).
+(16)	定員がすでにいっぱいで，希望していた講座を履修できず残念だ。
+It's a pity that I ( to / I / take / can't / wanted / course / the ) because it's already full.　〈金沢工業大〉
+(17)	水が冷たいにもかかわらず，少年たちは池に飛び込んだ。
+( cold / water / was / the / as ), the boys jumped into the pond.
+(18)	ただおもしろければどんな本でもかまわない。
+( as long / any book / interesting / will do / it is / as ).
+(19)	そのプロジェクトを終えるのにたったの3か月しかかからなかったことは，驚くべき偉業だ。
+( three months / an amazing achievement / it took only / to finish the project / that / is ).
+(20)	あなたは急いだほうがいい，さもないとそこには間に合わないだろう。
+( you will not / you had better / in time / be there / or / hurry up, ).
+(21)	そのショッピングセンターはとても大きかったので，人々が出口を見つけられないということがよくあった。
+( so huge / the exit / the shopping center / that people often / was / couldn't find ).
+(22)	もっと一生懸命勉強しなければ，あなたは試験に合格しないだろう。
+( much harder , / the exam / unless / pass / you study / you won't ).
+(23)	彼女があなたを信じているということは，信じがたい。
+( you / to believe / she believes / is / that / hard ).
+(24)	消防士たちは家々が火事になっている通りに到着するのに苦労した。
+The firemen ( the street / were on fire / the houses / getting to / had trouble / where ).
+(25)	ささやかながら，あなたの家族のお役に立てることは何でもしたい。
+I'd like to do ( little / I / what / service / do / can ) for your family.
+(26)	事情は50年前とは大違いである。［1語不要］
+( are / as / different / from / they / things / very / were / what ) fifty years ago.　〈東京理科大〉
+(27)	今やその国には新しい民主主義政府があるので，その国民はついに，さらなる自由を手にすることだろう。
+( democratic government / that / a new / now / the country / has), the people will at last have more freedom.
+(28)	もっと早く運転するのでなければ，コンサートに遅れるだろう。
+( faster, / you will be / unless you / the concert / drive / late for ).
+(29)	とても天気のよい日だったので，彼らはハイキングに出かけた。
+( fine day / such a / hiking / that / they went / it was ).
+(30)	ロバートは，そのホールの中にいる全員に聞こえるように，大きな声で結婚式のスピーチをしました。
+Robert made a loud speech at the wedding ( all / hear / people / so / in / the hall / could / that / the ) him.
+(31)	電車に乗りそこねてしまったら，私たちはどうしよう。
+( the train, / shall / supposing / we do / what / we miss )?
+(32)	スポーツの競技場にはよく特別なボックス席があるが，そこでは人々は飲食しながら試合を観戦することができる。
+( can watch games / special box seats / people / where / at sports stadiums, / there are often ) with food and drinks.
+(33)	彼が私を今日の私にしてくれた。
+( what / me / today / made / I am / he's ).
+(34)	どんなに忙しくても，少なくとも6時間は眠るようにしなさい。
+( never / you are, / to sleep / busy / fail / however ) at least six hours.
+(35)	その女性は年をとるにつれて，より美しくなった。
+( she / the woman / got older / as / more beautiful / became ).
+(36)	お米とアジア人の関係は，小麦とヨーロッパ人の関係と同じであるとよく言われる。
+It is often said that ( to Europeans / to Asians / what wheat / rice / is / is ).
+(37)	彼は2週間入院している。そういうわけで，彼は今日来ることができない。
+He has been in the hospital for two weeks. ( can't / today / that's / he / why / come ).
+(38)	私が彼に話しかけるやいなや，彼は行ってしまった。
+( before / gone / to him / hardly had / he was / I spoken ).
+(39)	私の友人のほとんどは，彼の絵が展示されている美術館へとすぐに行った。
+Most of my friends immediately ( were exhibited / which / went to / his drawings / the museum / in ).
+(40)	どんなに健康に自信があっても，年に1度は健康診断を受けることがすすめられている。
+( how / no / are / you / about / confident / matter ) your health, you are advised to have a medical check-up once a year.
+(41)	海外旅行は多くの人にとってわくわくするものだ。けれども，自分の国をとても恋しがってホームシックになる人も少しはいる。
+Traveling abroad is exciting for many people. There are, however, a few who miss their own ( become / countries / so much / that / they ) homesick.　〈センター試験〉
+(42)	ケンは早朝のどが痛く熱があったけれども，朝食後学校へ向かった。
+( and a fever / in the morning / Ken had / although / a sore throat / early ), he left for school after he had breakfast.
+(43)	水が冷たいにもかかわらず，少年たちは池に飛び込んだ。
+( cold / water / was / the / as ), the boys jumped into the pond.　〈中京大〉
+(44)	ダイエットに関する新情報は私たちに，多くの人々が考えていることが誤りであることを示している。
+New information about diet ( us / many people / shows / what / that ) think is incorrect.
+(45)	私の知る限りでは，出荷品は来週届くだろう。
+( next week / I know / as far / will arrive / the shipment / as ).
+(46)	ある男性が私の隣に住んでいるという事実が，彼は私の友人であるということを意味するわけではない。
+( does not mean / next door / that / to me / a man lives / the fact ) he is my friend.
+(47)	私は夏の別荘を建てるためにその土地を買った。
+( I could / a summer house / the land / I bought / build / so that ).
+(48)	その知らせに，彼女はあまりにもショックを受けたので，もう少しで気絶するところだった。
+The ( a / gave / her / news / she / shock / such / that ) nearly fainted.
+(49)	定員がすでにいっぱいで，希望していた講座を履修できず残念だ。
+It's a pity that I ( to / I / take / can't / wanted / course / the ) because it's already full.
+(50)	土曜日の朝働くという条件で，あなたに休暇を与えよう。
+( work / on condition / I'll give you / that you / on Saturday morning / the day off ).
+(51)	これは，あなたの助けなしでは私がその意味を理解できなかったことわざだ。
+( a proverb / meaning / this is / understand / I couldn't / whose ) without your help.
+(52)	シェイクスピアは，作家であっただけではなく，俳優でもあった。
+( also an actor / Shakespeare / only / but / a writer / was not ).
+(53)	明日電車が満席だといけないから，今日席を予約するほうがよい。
+( the train / I had better / in case / reserve a seat / is full / today / tomorrow ).
+(54)	きっと反対するだろうと私が思っていた男性からの反対意見はなかった。
+There was ( from the man / was sure / I thought / no objection / to protest / who ).
+(55)	これは私が生まれた家だ。
+This ( in which / born / the house / is / was / I ).
+(56)	時にはどんなにつらく思えても，あなたの勉強をやり続けなさい。
+Keep on with your studies, ( it / hard / seems / however / sometimes ).
+(57)	ダイエットに関する新情報は私たちに，多くの人々が考えていることが誤りであることを示している。
+New information about diet ( us / many people / shows / what / that ) think is incorrect.　〈センター試験〉
+(58)	彼は，私がその書名を思い出せないサリンジャーの小説の1冊について話した。
+He talked about ( Salinger's novels / I can't / which / one of / of / remember the title ).
+(59)	私が電車に足を踏み入れるやいなや，ドアが閉まった。
+( the train / sooner / I had / than / stepped into / no / the door closed ).
+(60)	ツアーに参加したい人は午前8時に駅前に集合しなければならない。
+( wish / the tour / who / to join / must gather / those ) in front of the station at 8:00 a.m.
+(61)	あなたが子ども時代を過ごした家を覚えていますか。
+( where / your childhood / the house / you spent / do you remember / years )?
+(62)	彼は彼女が英語で言ったことがあまりわかっていなかったようだ。
+It seems that ( what / understand / did / said / he / she / not ) in English well.
+(63)	それが，彼らがその市へ引っ越せなくなった理由だった。
+( stopped them / the reason / to the city / from moving / that was / which ).
+(64)	彼は知らないふりをして，それで私はさらに腹が立った。
+He ( which / me / ignorance, / made / pretended / even angrier ).
+(65)	ケイコはとても親切な女の子なので，だれもが彼女のことが好きだ。
+Keiko ( everyone / is / that / a nice girl / likes her / such ).
+(66)	事故が少なくなるように，新しい交通安全の法律が導入された。
+( there would be / safety laws / so that / new traffic / fewer accidents / were introduced ).
+(67)	事情は50年前とは大違いである。［1語不要］
+( are / as / different / from / they / things / very / were / what ) fifty years ago.
+(68)	あなたがたが下すどんな決定も，社長の承認が必要です。
+( will need / decision / approval / you make / the president's / any ).
+(69)	ある人の幼少時代の経験は，その人が大人としてどうふるまうかに影響を与えると信じる心理学者もいる。
+( childhood experiences / a person's early / that / some psychologists / affect / believe ) how he or she behaves as an adult.
+(70)	人前で話さなければならなかったときはいつでも，私は恐れですくんだ。
+( of people / to speak / whenever / in front / I had ), I was frozen with fear.
+(71)	たとえあなたがだれと話しているかわかっているとしても，電話でだれかに自分のクレジットカードの番号を言わないことが大切だ。
+( your credit card number / even / over the phone / not to give out / to anyone / if you know / it is important ) who you are talking to.
+(72)	彼女はみんなが読めるように自分の詩を出版したいと思った。
+( to publish / everyone could / her poetry / read it / so that / she wanted ).
+(73)	彼らが帰ったらすぐ連絡してほしいと彼女は私に依頼した。
+She asked ( to / contact / moment / her / the / me ) they returned.　〈埼玉医科大〉
+(74)	その学校は10年前とすっかり変わっている。
+( it was / quite different / what / the school is / from / ten years ago ).
+(75)	ジブリ美術館は私が訪れたい場所だ。
+Ghibli Museum ( to visit / which / a place / I want / is ).
+(76)	これは私たちが勉強したキャンパスです。その隣が，あなたが見たがっていたお寺です。
+This is the campus where we studied. ( that / next to / to see / is the temple / you wanted / it ).
+(77)	メアリーが本当にそのお金を盗んだのかどうかははっきりしない。
+( Mary actually / not / stole / is unclear / whether / the money or ).
+(78)	ささやかながら，あなたの家族のお役に立てることは何でもしたい。
+I'd like to do ( little / I / what / service / do / can ) for your family.　〈埼玉医科大〉
+(79)	それはナガノ氏が応募していた職だが，最終決定はまだなされていない。
+( for / Mr. Nagano / the position / has applied / which / that is ), but a final decision has not yet been made.
+(80)	私たちの市は，今は20年前とはすっかり変わっている。
+( very different / it was / is now / our city / what / from ) twenty years ago.
+(81)	地震があるたびに，より多くの人が自然とはなんと力強いものかと知るようになるだろうと私は思う。
+I think that ( an earthquake, / every time / more people / there is / will come to ) realize how powerful nature is.
+(82)	初めは簡単に思えたことが実は難しかったということはよくある。
+( easy / first / seems / what / at ) often turns out to be difficult.
+(83)	あなたが決めることなら何にでも私は賛成します。
+( with / decide / whatever / I will / you / agree ).
+(84)	トムは持っていた少ないながらもすべてのお金を失った。
+( lost / money / little / Tom / he had / what ).
+(85)	母が私の大好物を作ってくれたのに，今朝は朝食を食べる時間がなかった。
+( eat breakfast / my mother cooked / even though / have time to / this morning / my favorite dish / I didn't ).
+(86)	そのパンクしたタイヤを修理してもらうまで，あなたは車を運転できないだろう。
+You won't be able to ( fixed / get that / drive / until you / flat tire / your car ).
+(87)	私たちはどんなに速く走っても9時の電車には間に合わないのではないかと思います。
+I'm afraid ( the 9:00 train / how fast / in time for / we run / we won't be / no matter ).
+(88)	その仕事がどんなに大変でも，私は全力を尽くします。
+( no / is / hard / how / the task / matter ), I'll do my best.
+(89)	彼はどこに行ってもちやほやされる。
+( wherever / of / he goes / he is / much / made ).
+(90)	日本では，人々はよく集団行動をとるが，このことを最もはっきり示すのは日本人が旅行するそのしかたである。
+In Japan, people often perform activities in groups, and ( Japanese people travel / more clearly than / nothing / shows this / the way in which ).
+(91)	彼はそこで私を見たと言ったが，それはうそだった。
+( that / me there, / a lie / he saw / he said / which was ).
+(92)	今年は東京でたくさんの約束があったので，計画していたようにアメリカに行かずに，春の大半をそこで過ごした。
+This year I had so many commitments in Tokyo that I spent most of the spring there, ( to America / planned / instead / I had / as / of going ).
+(93)	夜に寒くなるといけないから，このセーターを持って行きなさい。
+Take this sweater with you ( cold / case / it / get / in / should ) in the evening.
+(94)	ロバートは，そのホールの中にいる全員に聞こえるように，大きな声で結婚式のスピーチをしました。
+Robert made a loud speech at the wedding ( all / hear / people / so / in / the hall / could / that / the ) him.　〈関西学院大〉
+(95)	彼女が後ろを向くとすぐに，その男の子はクッキーの入ったビンに手を伸ばした。
+( for the cookie jar / when / had she turned / the boy reached / hardly / her back ).
+(96)	太陽が東から昇るので，日本は長い間「日出づる国」と呼ばれてきた。
+( the east / the sun / in / since / rises ), Japan has long been called "the land of the rising sun."
+(97)	私の写真［絵］を，欲しい人ならだれにでもあげます。
+I will ( wants / give / it / my picture / whoever / to ).
+(98)	私は先週ひいた風邪がまだ治っていない。
+I still ( the cold / recovered from / I / haven't / caught ) last week.
+(99)	今日はとても天気のよい日なので，私たちは外に出かけるべきだ。
+( a day today / so / go outside / it's / that we should / beautiful ).
+(100)	その事故を引き起こしたいくつかの要因について話そう。
+( the accident / some factors / caused / about / that / let's talk ).
+(101)	消費者は使うお金を少なくしたいので，ふつう，商品の値段が下がるほどさらにそれを買いたい気持ちになる。
+Consumers are usually willing to buy ( spend / falls / its price / less money / because / as / more of an item / they want to ).
+(102)	どんなに健康に自信があっても，年に1度は健康診断を受けることがすすめられている。
+( how / no / are / you / about / confident / matter ) your health, you are advised to have a medical check-up once a year.　〈日本大〉
+(103)	私は猫よりも犬のほうが従順だという点で好きだ。
+( they are / better than / in / cats / I like dogs / that ) more obedient.
+(104)	サトウさんはいわゆる真のインテリだ。
+Mr. Sato ( call / what / intellectual / is / a true / you ).
+(105)	自分がどのような仕事に向いているかがわかるまでに，ずいぶん時間がかかった。
+It was a long time ( sort of / what / job / realized / would be / I / before ) suitable for me.
+(106)	彼女は，あなたをとても助けてくれると私が信じる女性です。
+( I believe / the woman / you a lot / can help / she is / who ).
+(107)	世界の多くの人々が耐えられない貧困の中で暮らしているという事実は，我々みんなの関心事であるべきだ。
+( in the world / many people / in intolerable poverty / that / live / the fact ) must concern all of us.
+(108)	私たちがいつ友人の家に行っても，たくさんの食べ物でもてなしてくれる。
+( house / we / whenever / our friend's / go to ), they entertain us with a lot of food.
+(109)	彼は運転免許証もクレジットカードも持っていなかった。
+( credit card / neither / he had / nor his / his driver's license / with him ).
+(110)	夕食に間に合って帰宅するのなら，買い物に行ってもいいですよ。
+( go shopping, / in time / as you / you can / come home / as long ) for dinner.
+(111)	私は先週ひいた風邪がまだ治っていない。
+I still ( the cold / recovered from / I / haven't / caught ) last week.　〈センター試験〉
+(112)	ありがとう，ヒロミ。この本はまさに私が欲しかった本です。
+Thank you, Hiromi. ( exactly / is / wanted / what / this book / I ).
+(113)	遅い時間だったけれども，私たちは友人たちを訪ねることに決めた。
+( as / our friends / it was, / to visit / late / we decided ).
+(114)	娘さんが弁護士になった先生のことを覚えていますか。
+( became / the teacher / daughter / an attorney / whose / do you remember )?
+(115)	急ぎなさい，そうすれば彼に追いつくことができるでしょう。
+( you'll / with him / and / catch up / hurry up, / be able to ).
+(116)	美しい女性だけれども，メアリーはとても謙虚である。
+( as / is / she is, / Mary / very humble / beautiful ).
+(117)	自分が間違っていると信じることをするべきではない。
+( you believe / you should / what / wrong / not do / is ).
+(118)	彼の両親は，冬が寒すぎたので，国の暖かい地方に引っ越した。
+His parents ( of the country / the winters were / moved to / since / the warmer part / too cold for them ).
+(119)	日本では，人々はよく集団行動をとるが，このことを最もはっきり示すのは日本人が旅行するそのしかたである。
+In Japan, people often perform activities in groups, and ( Japanese people travel / more clearly than / nothing / shows this / the way in which ).　〈センター試験〉
+(120)	スズキ氏の講演は，興味深いだけではなく，やる気にさせるものでもある。
+( only interesting / motivating / also / Mr. Suzuki's lectures / but / are not ).
+(121)	チャーリー・チャップリンは無声映画での彼の業績で最もよく知られた俳優だった。
+( an actor / best known / was / Charlie Chaplin / who was / for his work ) in silent movies.
+(122)	それが本当かどうかはあまり重要にはならないだろう。
+( not / not matter much / whether / true or / it is / will ).
+(123)	意味をよく理解していない単語を使ってはいけません。
+( the words / not use / understand well / meanings / you must / you don't / whose ).
+(124)	自分がどのような仕事に向いているかがわかるまでに，ずいぶん時間がかかった。
+It was a long time ( sort of / what / job / realized / would be / I / before ) suitable for me.　〈日本大〉
+(125)	ヘレンは疲れすぎていなければ，毎朝ジョギングをする。
+( too tired / Helen / unless / every morning / she is / jogs ).
+(126)	彼女にはたくさん宿題があるけれども，今夜は遅くまで起きてテレビを見るつもりだ。
+( stay up late / a lot of / she has / even though / she is going to / homework, ) watching TV tonight.
+(127)	よくあることだが，ジョンは会議に遅刻した。
+( the / is / as / case / often ), John was late for the meeting.
+(128)	多くの日本人は英語がよくわかっていても外国人に話しかけるのをためらう。
+( to speak to foreigners / they know / are hesitant / if / English well / many Japanese people / even ).
+(129)	地震があるたびに，より多くの人が自然とはなんと力強いものかと知るようになるだろうと私は思う。
+I think that ( an earthquake, / every time / more people / there is / will come to ) realize how powerful nature is.　〈センター試験〉
+(130)	ベル氏は私が情報を得た人物だ。
+Mr. Bell ( from / is / I obtained / whom / the information / the person ).
+(131)	宿題を終えるまで今夜は眠らないつもりだ。
+( I finish / I'm not going / until / to sleep / my homework / tonight ).
+(132)	海外旅行は多くの人にとってわくわくするものだ。けれども，自分の国をとても恋しがってホームシックになる人も少しはいる。
+Traveling abroad is exciting for many people. There are, however, a few who miss their own ( become / countries / so much / that / they ) homesick.
+(133)	この前の冬に私は香港に行ったが，そこは私が思っていたほど暖かくなかった。
+( Hong Kong, / as warm as / it wasn't / I went to / where / last winter ) I had expected.
+(134)	彼女は私がこれまでに会った中で最もロマンチックな女性だ。私が彼女を見た瞬間に，彼女は私の心を捕らえた。
+She is the most romantic woman I've ever met. ( she / I saw / my heart / her, / captured / the moment ).
+(135)	忘れるといけないからパスワードを書き留めておきなさい。
+( forget it / in / your password / you should / write down / case ).
+[ B ]
+(136)	(a) He's made me the person that I am today. (b) He's made me (　　　　　　) I am today.　〈名城大〉
+(137)	(a) I was born in this house. (b) This is the house in (　　　　　　) I was born.　〈中京大〉
+(138)	(a) Drive faster, or you will be late for the concert. (b) (　　　　　　) you drive faster, you will be late for the concert.　〈福島大〉
+(139)	(a) Any book will do only if it is interesting. (b) Any book will do as (　　　　　　) as it is interesting.　〈名城大〉
+(140)	(a) Mike doesn't like coffee. He doesn't like tea, either. (b) Mike likes (　　　　　　) coffee (　　　　　　) tea.　〈東京理科大〉
+(141)	(a) I bought the land for the purpose of building a summer house. (b) I bought the land (　　　　　　) (　　　　　　) I (　　　　　　) build a summer house.　〈大阪教育大〉
+(142)	(a) It seems that he did not understand her English well. (b) It seems that he did not understand (　　　　　　) she said in English well.　〈日本大〉
+[ C ]
+(143)	I didn't have time to eat breakfast this morning (　　　) my mother cooked my favorite dish.
+① since　　② even though　　③ given that　　④ regardless　〈芝浦工業大〉
+(144)	I had no sooner stepped into the train (　　　) the door closed.
+① and　　② as　　③ than　　④ that　〈明治学院大〉
+(145)	Do you remember the teacher (　　　) daughter became an attorney?
+① so that　　② that his　　③ which　　④ whose　〈明治大〉
+(146)	You must not use the words (　　　) meanings you don't understand well.
+① that　　② who　　③ whose　　④ which　〈足利工業大〉
+(147)	I'm afraid we won't be in time for the 9:00 train (　　　) how fast we run.
+① even if　　② as far as　　③ no matter　　④ as long as　〈摂南大〉
+(148)	Charlie Chaplin was an actor (　　　) was best known for his work in silent movies.
+① who　　② which　　③ whose　　④ what　〈松山大〉
+(149)	Hurry up, (　　　) you'll be able to catch up with him.
+① otherwise　　② but　　③ and　　④ or　〈中京大〉
+(150)	Write down your password (　　　) you should forget it.
+① in case　　② in order that　　③ so that　　④ unless　〈中央大〉
+(151)	Helen jogs every morning (　　　) she is too tired.
+① despite　　② without　　③ whether　　④ unless　〈福島大〉
+(152)	You won't be able to drive your car (　　　) you get that flat tire fixed.
+① until　　② after　　③ since　　④ during　〈関西学院大〉
+(153)	Last winter I went to Hong Kong, (　　　) as warm as I had expected.
+① when wasn't　　② where it wasn't　　③ where wasn't　　④ which it wasn't　〈センター試験〉
+(154)	Mr. Sato is (　　　) you call a true intellectual.
+① what　　② who　　③ which　　④ that　〈獨協大〉
+(155)	(　　　) she believes you is hard to believe.
+① What　　② That　　③ Whatever　　④ Whenever　〈立命館大〉
+(156)	I had no sooner stepped into the train (　　　) the door closed.
+① and　　② as　　③ than　　④ that
+(157)	Keep on with your studies, (　　　) hard it sometimes seems.
+① however　　② no matter what　　③ so　　④ whatever　〈センター試験〉
+(158)	Keiko is such a nice girl (　　　) everyone likes her.
+① how　　② that　　③ who　　④ why
+(159)	He is made much of (　　　) he goes.
+① wherever　　② however　　③ whether　　④ whichever
+(160)	Ghibli Museum is a place (　　　) I want to visit.
+① where　　② to where　　③ to which　　④ which
+(161)	That is the position for (　　　) Mr. Nagano has applied, but a final decision has not yet been made.
+① whom　　② which　　③ that　　④ what　〈早稲田大〉
+(162)	This year I had so many commitments in Tokyo that I spent most of the spring there, instead of going to America (　　　) I had planned.
+① as　　② if　　③ since　　④ that　〈東京薬科大〉
+(163)	There's no doubt (　　　) this woman is going to win the race.
+① about　　② for　　③ what　　④ that
+(164)	Charlie Chaplin was an actor (　　　) was best known for his work in silent movies.
+① who　　② which　　③ whose　　④ what
+(165)	I will agree with (　　　) you decide.
+① any what　　② whatever　　③ ever what　　④ anything how
+(166)	(　　　) the sun rises in the east, Japan has long been called "the land of the rising sun."
+① Since　　② If　　③ When　　④ For　〈駿河台大〉
+(167)	Our city is now very different from (　　　) it was twenty years ago.
+① why　　② which　　③ that　　④ what　〈桜美林大〉
+(168)	Last winter I went to Hong Kong, (　　　) as warm as I had expected.
+① when wasn't　　② where it wasn't　　③ where wasn't　　④ which it wasn't
+(169)	No matter (　　　) hard the task is, I'll do my best.
+① than　　② as　　③ however　　④ how　〈大阪学院大〉
+(170)	Hardly (　　　) to him before he was gone.
+① had I spoken　　② I have spoken　　③ I spoke　　④ I was spoken
+(171)	This is the house ( ) I was born.
+① which　　② in which　　③ in that　　④ what
+(172)	He talked about one of Salinger's novels (　　　) I can't remember the title.
+① which　　② whose　　③ whatever　　④ of which
+(173)	I like dogs better than cats in (　　　) they are more obedient.
+① which　　② what　　③ that　　④ whom
+(174)	(　　　) busy you are, never fail to sleep at least six hours.
+① However　　② Whoever　　③ Whatever　　④ Whenever　〈関東学院大〉
+(175)	New traffic safety laws were introduced (　　　) there would be fewer accidents.
+① so that　　② as if　　③ in case　　④ just as
+(176)	(　　　) it took only three months to finish the project is an amazing achievement.
+① While　　② If　　③ What　　④ That
+(177)	She asked me to contact her ( ) they returned.
+① directly　　② hardly　　③ the moment　　④ the instance
+(178)	I will agree with (　　　) you decide.
+① any what　　② whatever　　③ ever what　　④ anything how　〈松山大〉
+(179)	I think that ( ) there is an earthquake, more people will come to realize how powerful nature is.
+① even if　　② every　　③ every time　　④ every other
+(180)	His parents moved to the warmer part of the country (　　　) the winters were too cold for them.
+① since　　② and　　③ due to　　④ unless　〈芝浦工業大〉
+(181)	Mike likes ( ) coffee nor tea.
+① both　　② either　　③ neither　　④ not
+(182)	(　　　) she is, Mary is very humble.
+① A beautiful woman though　　② Beautiful as　　③ Beautifully woman as　　④ As beautiful so　〈関西学院大〉
+(183)	I don't mind lending you the book (　　　) you give it back soon.
+① provided　　② supposed　　③ unless　　④ which　〈近畿大〉
+(184)	Cold ( ) the water was, the boys jumped into the pond.
+① as　　② as if　　③ even if　　④ like
+(185)	(　　　) busy you are, never fail to sleep at least six hours.
+① However　　② Whoever　　③ Whatever　　④ Whenever
+(186)	It's (　　　) day today that we should go outside.
+① such beautiful　　② so beautiful　　③ so beautiful a　　④ a so beautiful
+(187)	That was the reason (　　　) stopped them from moving to the city.
+① which　　② for　　③ because　　④ why
+(188)	Tom lost (　　　) little money he had.
+① whose　　② which　　③ what　　④ how
+(189)	The school is quite different from (　　　) it was ten years ago.
+① which　　② that　　③ as　　④ what
+(190)	Hardly (　　　) her back when the boy reached for the cookie jar.
+① she had turned　　② had she turned　　③ did she turn　　④ she turned
+(191)	I'm afraid that ( ) hard the president may try, the company will go bankrupt owing to the recent economic recession.
+① however　　② whatever　　③ whichever　　④ whoever
+(192)	Let's talk about some factors (　　　) caused the accident.
+① those　　② what　　③ where　　④ that　〈神奈川大〉
+(193)	Thank you, Hiromi. This book is exactly (　　　) I wanted.
+① what　　② which　　③ of which　　④ that　〈センター試験〉
+(194)	Hardly (　　　) to him before he was gone.
+① had I spoken　　② I have spoken　　③ I spoke　　④ I was spoken　〈玉川大〉
+(195)	It is often said that rice is to Asians (　　　) wheat is to Europeans.
+① how　　② that　　③ what　　④ which
+(196)	Late (　　　) it was, we decided to visit our friends.
+① as　　② on　　③ but　　④ even
+(197)	There are a lot of students (　　　) have to work hard to pass the test.
+① when　　② whose　　③ who　　④ which　〈産業能率大〉
+(198)	It's (　　　) day today that we should go outside.
+① such beautiful　　② so beautiful　　③ so beautiful a　　④ a so beautiful　〈青山学院大〉
+(199)	Mr. Suzuki's lectures are not only interesting (　　　) also motivating.
+① and　　② but　　③ either　　④ or　〈金沢工業大〉
+(200)	(　　　) she has a lot of homework, she is going to stay up late watching TV tonight.
+① In spite of　　② Even though　　③ Therefore　　④ However　〈甲南大〉
+(201)	He had neither his driver's license (　　　) his credit card with him.
+① and　　② but　　③ nor　　④ or
+(202)	He talked about one of Salinger's novels (　　　) I can't remember the title.
+① which　　② whose　　③ whatever　　④ of which　〈防衛大学校〉
+(203)	His parents moved to the warmer part of the country (　　　) the winters were too cold for them.
+① since　　② and　　③ due to　　④ unless
+(204)	(　　　) seems easy at first often turns out to be difficult.
+① It　　② That　　③ What　　④ Which　〈センター試験〉
+(205)	The woman became more beautiful (　　　) she got older.
+① as　　② before　　③ from　　④ if
+(206)	There are often special box seats at sports stadiums, (　　　) people can watch games with food and drinks.
+① where 　　② wherever　　③ which　　④ whichever　〈日本大〉
+(207)	It was (　　　) a fine day that they went hiking.
+① such　　② so　　③ what　　④ then
+(208)	Hurry up, (　　　) you'll be able to catch up with him.
+① otherwise　　② but　　③ and　　④ or
+(209)	These are the tools (　　　) he built his own house.
+① that　　② with that　　③ with which　　④ which　〈青山学院大〉
+(210)	It's a pity that I can't take the course ( ) because it's already full.
+① that I want　　② which I wanted　　③ I wanted to　　④ wanted to it
+(211)	The professor sternly told the student, "Read the passage (　　　) I referred in my lecture."
+① that　　② to that　　③ to which　　④ which　〈センター試験〉
+(212)	She is the woman (　　　) I believe can help you a lot.
+① as　　② who　　③ whom　　④ which
+(213)	You won't be able to drive your car (　　　) you get that flat tire fixed.
+① until　　② after　　③ since　　④ during
+(214)	You can go shopping, as (　　　) as you come home in time for dinner.
+① far　　② long　　③ much　　④ well
+(215)	The fact (　　　) many people in the world live in intolerable poverty must concern all of us.
+① that　　② which　　③ in which　　④ where　〈立正大〉
+(216)	I'll give you the day off on (　　　) that you work on Saturday morning.
+① condition　　② exchange　　③ promise　　④ terms　〈津田塾大〉
+(217)	As is often the case (　　　) children, Fred had recovered by the time the doctor arrived.
+① over　　② off　　③ to　　④ with　〈九州産業大〉
+(218)	Mr. Suzuki's lectures are not only interesting (　　　) also motivating.
+① and　　② but　　③ either　　④ or
+(219)	This is a proverb ( ) meaning I couldn't understand without your help.
+① that　　② what　　③ which　　④ whose
+(220)	( ) you drive faster, you will be late for the concert.
+① Since　　② Though　　③ Unless　　④ While
+(221)	(　　　) we miss the train, what shall we do?
+① Having　　② Looking　　③ Being　　④ Supposing
+(222)	The firemen had trouble getting to the street (　　　) the houses were on fire.
+① how　　② that　　③ where　　④ which　〈センター試験〉
+(223)	(　　　) you study much harder, you won't pass the exam.
+① Unless　　② If　　③ In case　　④ Since
+(224)	I will give my picture to (　　　) wants it.
+① whomever　　② whoever　　③ anyone　　④ no matter who
+(225)	Mr. Bell is the person (　　　) I obtained the information.
+① for what　　② from whom　　③ with whose　　④ to who
+(226)	New information about diet shows us that ( ) many people think is incorrect.
+① what　　② how　　③ why　　④ when
+(227)	The fact (　　　) a man lives next door to me does not mean he is my friend.
+① if　　② of　　③ that　　④ which
+(228)	Please feel free to contact me. I'm willing to give you (　　　) help I can.
+① that　　② which　　③ whose　　④ what
+(229)	You can go shopping, as (　　　) as you come home in time for dinner.
+① far　　② long　　③ much　　④ well　〈学習院大〉
+(230)	(　　　) we go to our friend's house, they entertain us with a lot of food.
+① Wherever　　② Whoever　　③ Whenever　　④ Whichever　〈亜細亜大〉
+(231)	The school is quite different from (　　　) it was ten years ago.
+① which　　② that　　③ as　　④ what　〈東京経済大〉
+(232)	Helen jogs every morning (　　　) she is too tired.
+① despite　　② without　　③ whether　　④ unless
+(233)	I still haven't recovered from the cold ( ) last week.
+① what I caught　　② I caught　　③ in which I caught　　④ why I caught
+(234)	I didn't have time to eat breakfast this morning (　　　) my mother cooked my favorite dish.
+① since　　② even though　　③ given that　　④ regardless
+(235)	Do you remember the house (　　　) you spent your childhood years?
+① where　　② when　　③ which　　④ of which　〈芝浦工業大〉
+(236)	He has been in the hospital for two weeks. That's (　　　) he can't come today.
+① because　　② how　　③ why　　④ the way　〈東京電機大〉
+(237)	( ) confident you are about your health, you are advised to have a medical check-up once a year.
+① No matter how　　② No matter what　　③ No matter when　　④ No matter which
+(238)	Take off your coat in this room, (　　　) you will sweat.
+① and　　② or　　③ unless　　④ so　〈九州産業大〉
+(239)	Mr. Sato is (　　　) you call a true intellectual.
+① what　　② who　　③ which　　④ that
+(240)	(　　　) it took only three months to finish the project is an amazing achievement.
+① While　　② If　　③ What　　④ That　〈日本大〉
+(241)	Consumers are usually willing to buy more of an item as its price falls ( ) they want to spend less money.
+① because　　② because of　　③ though　　④ unless
+(242)	It was a long time ( ) I realized what sort of job would be suitable for me.
+① after　　② before　　③ during　　④ while
+(243)	(　　　) the country has a new democratic government, the people will at last have more freedom.
+① Although　　② Even if　　③ In the event that　　④ Now that　〈摂南大〉
+(244)	(　　　) is often the case, John was late for the meeting.
+① As　　② When　　③ Since　　④ Why
+(245)	Many Japanese people are hesitant to speak to foreigners ( ) they know English well.
+① as　　② even　　③ even if　　④ as to
+(246)	You should not do (　　　) you believe is wrong.
+① what　　② that　　③ which　　④ how
+(247)	The fact (　　　) many people in the world live in intolerable poverty must concern all of us.
+① that　　② which　　③ in which　　④ where
+(248)	There was no objection from the man (　　　) I thought was sure to protest.
+① of whom　　② on whom　　③ who　　④ by whom
+(249)	It was (　　　) a fine day that they went hiking.
+① such　　② so　　③ what　　④ then　〈駒澤大〉
+(250)	The professor sternly told the student, "Read the passage (　　　) I referred in my lecture."
+① that　　② to that　　③ to which　　④ which
+(251)	Shakespeare was not only a writer (　　　) also an actor.
+① but　　② again　　③ even　　④ ever
+(252)	The fact (　　　) a man lives next door to me does not mean he is my friend.
+① if　　② of　　③ that　　④ which　〈東海大〉
+(253)	There's no doubt (　　　) this woman is going to win the race.
+① about　　② for　　③ what　　④ that　〈東京経済大〉
+(254)	Please feel free to contact me. I'm willing to give you (　　　) help I can.
+① that　　② which　　③ whose　　④ what　〈東邦大〉
+(255)	(　　　) I had to speak in front of people, I was frozen with fear.
+① Whereas　　② Whoever　　③ Whether　　④ Whenever
+(256)	This year I had so many commitments in Tokyo that I spent most of the spring there, instead of going to America (　　　) I had planned.
+① as　　② if　　③ since　　④ that
+(257)	It seems that he did not understand ( ) she said in English well.
+① what　　② when　　③ why　　④ whatever
+(258)	There are a lot of students (　　　) have to work hard to pass the test.
+① when　　② whose　　③ who　　④ which
+(259)	This is the campus where we studied. Next to it is the temple ( ) you wanted to see.
+① that　　② what　　③ whatever　　④ whose
+(260)	It is important not to give out your credit card number to anyone over the phone (　　　) you know who you are talking to.
+① so that　　② even if　　③ but　　④ or　〈日本大〉
+(261)	He said that he saw me there, (　　　) was a lie.
+① that　　② which　　③ what　　④ such　〈麻布大〉
+(262)	Late (　　　) it was, we decided to visit our friends.
+① as　　② on　　③ but　　④ even　〈福岡大〉
+(263)	Any decision (　　　) need the president's approval.
+① you make will　　② that will be　　③ will be made　　④ you will make
+(264)	Do you remember the teacher (　　　) daughter became an attorney?
+① so that　　② that his　　③ which　　④ whose
+(265)	Take this sweater with you in ( ) it should get cold in the evening.
+① brief　　② case　　③ example　　④ that
+(266)	I had better reserve a seat today (　　　) the train is full tomorrow.
+① as if　　② even if　　③ in case　　④ even though
+(267)	As is often the case (　　　) children, Fred had recovered by the time the doctor arrived.
+① over　　② off　　③ to　　④ with
+(268)	He said he couldn't speak Russian, (　　　) was untrue.
+① which　　② what　　③ why　　④ how　〈名古屋外国語大〉
+(269)	I bought the land ( ) I could build a summer house.
+① as　　② so that　　③ that　　④ whether
+(270)	It is important not to give out your credit card number to anyone over the phone (　　　) you know who you are talking to.
+① so that　　② even if　　③ but　　④ or
+(271)	The news gave her ( ) a shock that she nearly fainted.
+① so　　② such　　③ very　　④ too
+(272)	(　　　) we miss the train, what shall we do?
+① Having　　② Looking　　③ Being　　④ Supposing　〈駒澤大〉
+(273)	Keep on with your studies, (　　　) hard it sometimes seems.
+① however　　② no matter what　　③ so　　④ whatever
+(274)	She wanted to publish her poetry (　　　) everyone could read it.
+① in that　　② so much　　③ so that　　④ that which　〈日本女子大〉
+(275)	I'm not going to sleep tonight (　　　) I finish my homework.
+① by　　② during　　③ until　　④ since
+(276)	The woman became more beautiful (　　　) she got older.
+① as　　② before　　③ from　　④ if　〈武蔵大〉
+(277)	I had better reserve a seat today (　　　) the train is full tomorrow.
+① as if　　② even if　　③ in case　　④ even though　〈法政大〉
+(278)	(　　　) you study much harder, you won't pass the exam.
+① Unless　　② If　　③ In case　　④ Since　〈四天王寺大〉
+(279)	Ghibli Museum is a place (　　　) I want to visit.
+① where　　② to where　　③ to which　　④ which　〈杏林大〉
+(280)	Whether (　　　) not matter much.
+① is it true or not does　　② it is true or not will　　③ or not true will be　　④ true or not is
+(281)	You should not do (　　　) you believe is wrong.
+① what　　② that　　③ which　　④ how　〈亜細亜大〉
+(282)	You had better hurry up, (　　　) you will not be there in time.
+① and　　② or　　③ till　　④ when
+(283)	The firemen had trouble getting to the street (　　　) the houses were on fire.
+① how　　② that　　③ where　　④ which
+(284)	Thank you, Hiromi. This book is exactly (　　　) I wanted.
+① what　　② which　　③ of which　　④ that
+(285)	(　　　) she is, Mary is very humble.
+① A beautiful woman though　　② Beautiful as　　③ Beautifully woman as　　④ As beautiful so
+(286)	No matter (　　　) hard the task is, I'll do my best.
+① than　　② as　　③ however　　④ how
+(287)	He said he couldn't speak Russian, (　　　) was untrue.
+① which　　② what　　③ why　　④ how
+(288)	Keiko is such a nice girl (　　　) everyone likes her.
+① how　　② that　　③ who　　④ why　〈明治大〉
+(289)	In Japan, people often perform activities in groups, and nothing shows this more clearly than the way ( ) Japanese people travel.
+① that　　② which　　③ in which　　④ how
+(290)	Whether (　　　) not matter much.
+① is it true or not does 　　② it is true or not will　　③ or not true will be　　④ true or not is　〈西南学院大〉
+(291)	She is the most romantic woman I've ever met. (　　　) I saw her, she captured my heart.
+① The moment　　② In case　　③ Either　　④ Though　〈北里大〉
+(292)	Robert made a ( ) speech at the wedding so that all the people in the hall could hear him.
+① choking　　② hoarse　　③ loud　　④ low
+(293)	Hardly (　　　) her back when the boy reached for the cookie jar.
+① she had turned　　② had she turned　　③ did she turn　　④ she turned　〈関西学院大〉
+(294)	Our city is now very different from (　　　) it was twenty years ago.
+① why　　② which　　③ that　　④ what
+(295)	(　　　) the country has a new democratic government, the people will at last have more freedom.
+① Although　　② Even if　　③ In the event that　　④ Now that
+(296)	(　　　) the sun rises in the east, Japan has long been called "the land of the rising sun."
+① Since　　② If　　③ When　　④ For
+(297)	As (　　　) as I know, she no longer works there.
+① far　　② little　　③ long　　④ much　〈金城学院大〉
+(298)	(　　　) I had to speak in front of people, I was frozen with fear.
+① Whereas　　② Whoever　　③ Whether　　④ Whenever　〈亜細亜大〉
+(299)	(　　　) Mary actually stole the money or not is unclear.
+① If　　② How　　③ What　　④ Whether
+(300)	The shopping center was (　　　) huge that people often couldn't find the exit.
+① very　　② much　　③ so　　④ as
+(301)	He pretended ignorance, ( ) made me even angrier.
+① that　　② what　　③ which　　④ whichever
+(302)	I'd like to do ( ) little service I can do for your family.
+① that　　② what　　③ which　　④ whose
+(303)	Tom lost (　　　) little money he had.
+① whose　　② which　　③ what　　④ how　〈神奈川大〉
+(304)	Any decision (　　　) need the president's approval.
+① you make will　　② that will be　　③ will be made　　④ you will make　〈西南学院大〉
+(305)	I will give my picture to (　　　) wants it.
+① whomever　　② whoever　　③ anyone　　④ no matter who　〈北陸大〉
+(306)	That is the position for (　　　) Mr. Nagano has applied, but a final decision has not yet been made.
+① whom　　② which　　③ that　　④ what
+(307)	As (　　　) as I know, she no longer works there.
+① far　　② little　　③ long　　④ much
+(308)	Things are very different from ( ) they were fifty years ago.
+① that　　② what　　③ which　　④ however
+(309)	There was no objection from the man (　　　) I thought was sure to protest.
+① of whom　　② on whom　　③ who　　④ by whom　〈桜美林大〉
+(310)	You had better hurry up, (　　　) you will not be there in time.
+① and　　② or　　③ till　　④ when　〈立命館大〉
+(311)	Do you remember the house (　　　) you spent your childhood years?
+① where　　② when　　③ which　　④ of which
+(312)	(　　　) she has a lot of homework, she is going to stay up late watching TV tonight.
+① In spite of　　② Even though　　③ Therefore　　④ However
+(313)	He is made much of (　　　) he goes.
+① wherever　　② however　　③ whether　　④ whichever　〈拓殖大〉
+(314)	Traveling abroad is exciting for many people. There are, however, a few who miss their own countries ( ) that they become homesick.
+① so　　② such　　③ so many　　④ so much
+(315)	Mr. Bell is the person (　　　) I obtained the information.
+① for what　　② from whom　　③ with whose　　④ to who　〈法政大〉
+(316)	I like dogs better than cats in (　　　) they are more obedient.
+① which　　② what　　③ that　　④ whom　〈東海大〉
+(317)	I'm not going to sleep tonight (　　　) I finish my homework.
+① by　　② during　　③ until　　④ since　〈センター試験〉
+(318)	(　　　) we go to our friend's house, they entertain us with a lot of food.
+① Wherever　　② Whoever　　③ Whenever　　④ Whichever
+(319)	She is the most romantic woman I've ever met. (　　　) I saw her, she captured my heart.
+① The moment　　② In case　　③ Either　　④ Though
+(320)	Any book will do ( ) it is interesting.
+① as long as　　② as far as　　③ as much as　　④ as well as
+(321)	Write down your password (　　　) you should forget it.
+① in case　　② in order that　　③ so that　　④ unless
+(322)	(　　　) seems easy at first often turns out to be difficult.
+① It　　② That　　③ What　　④ Which
+(323)	Shakespeare was not only a writer (　　　) also an actor.
+① but　　② again　　③ even　　④ ever　〈九州産業大〉
+(324)	(　　　) Mary actually stole the money or not is unclear.
+① If　　② How　　③ What　　④ Whether　〈青山学院大〉
+(325)	He's made me ( ) I am today.
+① that　　② what　　③ when　　④ which
+(326)	I don't mind lending you the book (　　　) you give it back soon.
+① provided　　② supposed　　③ unless　　④ which
+(327)	(　　　) she believes you is hard to believe.
+① What　　② That　　③ Whatever　　④ Whenever
+(328)	He has been in the hospital for two weeks. That's (　　　) he can't come today.
+① because　　② how　　③ why　　④ the way
+(329)	That was the reason (　　　) stopped them from moving to the city.
+① which　　② for　　③ because　　④ why　〈中京大〉
+(330)	He had neither his driver's license (　　　) his credit card with him.
+① and　　② but　　③ nor　　④ or　〈京都嵯峨芸術大〉
+(331)	She is the woman (　　　) I believe can help you a lot.
+① as　　② who　　③ whom　　④ which　〈摂南大〉
+(332)	It is often said that rice is to Asians (　　　) wheat is to Europeans.
+① how　　② that　　③ what　　④ which　〈センター試験〉
+(333)	You must not use the words (　　　) meanings you don't understand well.
+① that　　② who　　③ whose　　④ which
+(334)	I'll give you the day off on (　　　) that you work on Saturday morning.
+① condition　　② exchange　　③ promise　　④ terms
+(335)	(　　　) is often the case, John was late for the meeting.
+① As　　② When　　③ Since　　④ Why　〈中央大〉
+(336)	Some psychologists believe ( ) a person's early childhood experiences affect how he or she behaves as an adult.
+① if　　② so　　③ that　　④ what
+(337)	I'm afraid we won't be in time for the 9:00 train (　　　) how fast we run.
+① even if　　② as far as　　③ no matter　　④ as long as
+(338)	The shipment will arrive next week as (　　　) as I know.
+① far　　② little　　③ often　　④ soon
+(339)	( ) Ken had a sore throat and a fever early in the morning, he left for school after he had breakfast.
+① As　　② However　　③ If　　④ Though
+(340)	(　　　) wish to join the tour must gather in front of the station at 8:00 a.m.
+① Anybody　　② Everybody　　③ Those who 　　④ Whoever　〈埼玉医科大〉
+(341)	She wanted to publish her poetry (　　　) everyone could read it.
+① in that　　② so much　　③ so that　　④ that which
+(342)	(　　　) wish to join the tour must gather in front of the station at 8:00 a.m.
+① Anybody　　② Everybody　　③ Those who　　④ Whoever
+(343)	Take off your coat in this room, (　　　) you will sweat.
+① and　　② or　　③ unless　　④ so
+(344)	The shopping center was (　　　) huge that people often couldn't find the exit.
+① very　　② much　　③ so　　④ as　〈法政大〉
+(345)	There are often special box seats at sports stadiums, (　　　) people can watch games with food and drinks.
+① where　　② wherever　　③ which　　④ whichever
+(346)	The shipment will arrive next week as (　　　) as I know.
+① far　　② little　　③ often　　④ soon　〈南山大〉
+(347)	Let's talk about some factors (　　　) caused the accident.
+① those　　② what　　③ where　　④ that
+(348)	Most of my friends immediately went to the museum ( ) his drawings were exhibited.
+① which　　② in which　　③ to which　　④ whose
+(349)	He said that he saw me there, (　　　) was a lie.
+① that　　② which　　③ what　　④ such
+(350)	New traffic safety laws were introduced (　　　) there would be fewer accidents.
+① so that　　② as if　　③ in case　　④ just as　〈南山大〉
+(351)	These are the tools (　　　) he built his own house.
+① that　　② with that　　③ with which　　④ which
+[ D ]
+(352)	私は猫よりも犬のほうが従順だという点で好きだ。
+I like dogs better than cats in (　　　) they are more obedient.
+(353)	テストに受かるためにがんばって勉強しなければならない生徒がたくさんいる。
+There are a lot of students (　　　) have to work hard to pass the test.
+(354)	私が彼に話しかけるやいなや，彼は行ってしまった。
+Hardly (　　　) (　　　) (　　　) to him before he was gone.
+(355)	それが本当かどうかはあまり重要にはならないだろう。
+Whether (　　　) (　　　) (　　　) (　　　) (　　　) will not matter much.
+(356)	忘れるといけないからパスワードを書き留めておきなさい。
+Write down your password (　　　) (　　　) you should forget it.
+(357)	彼は運転免許証もクレジットカードも持っていなかった。
+He had neither his driver's license (　　　) his credit card with him.
+(358)	シェイクスピアは，作家であっただけではなく，俳優でもあった。
+Shakespeare was not only a writer (　　　) also an actor.
+(359)	あなたがたが下すどんな決定も，社長の承認が必要です。
+Any decision (　　　) (　　　) (　　　) need the president's approval.
+(360)	消防士たちは家々が火事になっている通りに到着するのに苦労した。
+The firemen had trouble getting to the street (　　　) the houses were on fire.
+(361)	あなたが決めることなら何にでも私は賛成します。
+I will agree with (　　　) you decide.
+(362)	私たちがいつ友人の家に行っても，たくさんの食べ物でもてなしてくれる。
+(　　　) we go to our friend's house, they entertain us with a lot of food.
+(363)	私が電車に足を踏み入れるやいなや，ドアが閉まった。
+I had no sooner stepped into the train (　　　) the door closed.
+(364)	急ぎなさい，そうすれば彼に追いつくことができるでしょう。
+Hurry up, (　　　) you'll be able to catch up with him.
+(365)	ある男性が私の隣に住んでいるという事実が，彼は私の友人であるということを意味するわけではない。
+The fact (　　　) a man lives next door to me does not mean he is my friend.
+(366)	ジブリ美術館は私が訪れたい場所だ。
+Ghibli Museum is a place (　　　) I want to visit.
+(367)	彼女があなたを信じているということは，信じがたい。
+(　　　) she believes you is hard to believe.
+(368)	彼女が後ろを向くとすぐに，その男の子はクッキーの入ったビンに手を伸ばした。
+Hardly (　　　) (　　　) (　　　) her back when the boy reached for the cookie jar.
+(369)	ささやかながら，あなたの家族のお役に立てることは何でもしたい。
+I'd like to do (　　　) little service I can do for your family.
+(370)	これは私が生まれた家だ。
+This is the house (　　　) (　　　) I was born.
+(371)	あなたがすぐ返してくれるなら，その本をお貸しするのはかまいませんよ。
+I don't mind lending you the book (　　　) you give it back soon.
+(372)	サトウさんはいわゆる真のインテリだ。
+Mr. Sato is (　　　) you call a true intellectual.
+(373)	きっと反対するだろうと私が思っていた男性からの反対意見はなかった。
+There was no objection from the man (　　　) I thought was sure to protest.
+(374)	チャーリー・チャップリンは無声映画での彼の業績で最もよく知られた俳優だった。
+Charlie Chaplin was an actor (　　　) was best known for his work in silent movies.
+(375)	トムは持っていた少ないながらもすべてのお金を失った。
+Tom lost (　　　) little money he had.
+(376)	それはナガノ氏が応募していた職だが，最終決定はまだなされていない。
+That is the position for (　　　) Mr. Nagano has applied, but a final decision has not yet been made.
+(377)	彼はロシア語が話せないと言ったが，本当ではなかった。
+He said he couldn't speak Russian, (　　　) was untrue.
+(378)	地震があるたびに，より多くの人が自然とはなんと力強いものかと知るようになるだろうと私は思う。
+I think that (　　　) (　　　) there is an earthquake, more people will come to realize how powerful nature is.
+(379)	電車に乗りそこねてしまったら，私たちはどうしよう。
+(　　　) we miss the train, what shall we do?
+(380)	彼らが帰ったらすぐ連絡してほしいと彼女は私に依頼した。
+She asked me to contact her (　　　) (　　　) they returned.
+(381)	この部屋では上着を脱ぎなさい，そうしないと汗をかきますよ。
+Take off your coat in this room, (　　　) you will sweat.
+(382)	ツアーに参加したい人は午前8時に駅前に集合しなければならない。
+(　　　) (　　　) wish to join the tour must gather in front of the station at 8:00 a.m.
+(383)	そのプロジェクトを終えるのにたったの3か月しかかからなかったことは，驚くべき偉業だ。
+(　　　) it took only three months to finish the project is an amazing achievement.
+(384)	スポーツの競技場にはよく特別なボックス席があるが，そこでは人々は飲食しながら試合を観戦することができる。
+There are often special box seats at sports stadiums, (　　　) people can watch games with food and drinks.
+(385)	私の友人のほとんどは，彼の絵が展示されている美術館へとすぐに行った。
+Most of my friends immediately went to the museum (　　　) (　　　) his drawings were exhibited.
+(386)	夕食に間に合って帰宅するのなら，買い物に行ってもいいですよ。
+You can go shopping, as (　　　) as you come home in time for dinner.
+(387)	スズキ氏の講演は，興味深いだけではなく，やる気にさせるものでもある。
+Mr. Suzuki's lectures are not only interesting (　　　) also motivating.
+(388)	土曜日の朝働くという条件で，あなたに休暇を与えよう。
+I'll give you the day off on (　　　) that you work on Saturday morning.
+(389)	教授はその生徒に「私が講義で言及した部分を読みなさい」と厳しく言った。
+The professor sternly told the student, "Read the passage (　　　) (　　　) I referred in my lecture."
+(390)	彼女はみんなが読めるように自分の詩を出版したいと思った。
+She wanted to publish her poetry (　　　) (　　　) everyone could read it.
+(391)	明日電車が満席だといけないから，今日席を予約するほうがよい。
+I had better reserve a seat today (　　　) (　　　) the train is full tomorrow.
+(392)	この女性がレースに勝つだろうということは間違いない。
+There's no doubt (　　　) this woman is going to win the race.
+(393)	宿題を終えるまで今夜は眠らないつもりだ。
+I'm not going to sleep tonight (　　　) I finish my homework.
+(394)	彼は，私がその書名を思い出せないサリンジャーの小説の1冊について話した。
+He talked about one of Salinger's novels (　　　) (　　　) I can't remember the title.
+(395)	娘さんが弁護士になった先生のことを覚えていますか。
+Do you remember the teacher (　　　) daughter became an attorney?
+(396)	マイクはコーヒーも紅茶も好きではない。
+Mike likes (　　　) coffee nor tea.
+(397)	その学校は10年前とすっかり変わっている。
+The school is quite different from (　　　) it was ten years ago.
+(398)	彼が私を今日の私にしてくれた。
+He's made me (　　　) I am today.
+(399)	私が知る限りでは，彼女はもうそこで働いていない。
+As (　　　) as I know, she no longer works there.
+(400)	そのパンクしたタイヤを修理してもらうまで，あなたは車を運転できないだろう。
+You won't be able to drive your car (　　　) you get that flat tire fixed.
+(401)	水が冷たいにもかかわらず，少年たちは池に飛び込んだ。
+Cold (　　　) the water was, the boys jumped into the pond.
+(402)	これは私たちが勉強したキャンパスです。その隣が，あなたが見たがっていたお寺です。
+This is the campus where we studied. Next to it is the temple (　　　) you wanted to see.
+(403)	あなたが子ども時代を過ごした家を覚えていますか。
+Do you remember the house (　　　) you spent your childhood years?
+(404)	お米とアジア人の関係は，小麦とヨーロッパ人の関係と同じであるとよく言われる。
+It is often said that rice is to Asians (　　　) wheat is to Europeans.
+(405)	遅い時間だったけれども，私たちは友人たちを訪ねることに決めた。
+Late (　　　) it was, we decided to visit our friends.
+(406)	子どもにはよくあることだが，フレッドは医師が到着するまでには回復してしまっていた。
+As is often the case (　　　) children, Fred had recovered by the time the doctor arrived.
+(407)	その女性は年をとるにつれて，より美しくなった。
+The woman became more beautiful (　　　) she got older.
+(408)	海外旅行は多くの人にとってわくわくするものだ。けれども，自分の国をとても恋しがってホームシックになる人も少しはいる。
+Traveling abroad is exciting for many people. There are, however, a few who miss their own countries (　　　) (　　　) that they become homesick.
+(409)	彼女は私がこれまでに会った中で最もロマンチックな女性だ。私が彼女を見た瞬間に，彼女は私の心を捕らえた。
+She is the most romantic woman I've ever met. (　　　) (　　　) I saw her, she captured my heart.
+(410)	ただおもしろければどんな本でもかまわない。
+Any book will do (　　　) (　　　) (　　　) it is interesting.
+(411)	今年は東京でたくさんの約束があったので，計画していたようにアメリカに行かずに，春の大半をそこで過ごした。
+This year I had so many commitments in Tokyo that I spent most of the spring there, instead of going to America (　　　) I had planned.
+(412)	どんなに社長ががんばっても，会社は最近の不景気のせいで破産するのではないかと私は思う。
+I'm afraid that (　　　) (　　　) (　　　) hard the president may try, the company will go bankrupt owing to the recent economic recession.
+(413)	私たちの市は，今は20年前とはすっかり変わっている。
+Our city is now very different from (　　　) it was twenty years ago.
+(414)	人前で話さなければならなかったときはいつでも，私は恐れですくんだ。
+(　　　) I had to speak in front of people, I was frozen with fear.
+(415)	自分がどのような仕事に向いているかがわかるまでに，ずいぶん時間がかかった。
+It was a long time (　　　) I realized what sort of job would be suitable for me.
+(416)	私は先週ひいた風邪がまだ治っていない。
+I still haven't recovered from the cold (　　　) (　　　) last week.
+(417)	消費者は使うお金を少なくしたいので，ふつう，商品の値段が下がるほどさらにそれを買いたい気持ちになる。
+Consumers are usually willing to buy more of an item as its price falls (　　　) they want to spend less money.
+(418)	定員がすでにいっぱいで，希望していた講座を履修できず残念だ。
+It's a pity that I can't take the course (　　　) (　　　) (　　　) because it's already full.
+(419)	彼は知らないふりをして，それで私はさらに腹が立った。
+He pretended ignorance, (　　　) made me even angrier.
+(420)	自分が間違っていると信じることをするべきではない。
+You should not do (　　　) you believe is wrong.
+(421)	彼はそこで私を見たと言ったが，それはうそだった。
+He said that he saw me there, (　　　) was a lie.
+(422)	意味をよく理解していない単語を使ってはいけません。
+You must not use the words (　　　) meanings you don't understand well.
+(423)	彼はどこに行ってもちやほやされる。
+He is made much of (　　　) he goes.
+(424)	とても天気のよい日だったので，彼らはハイキングに出かけた。
+It was (　　　) a fine day that they went hiking.
+(425)	メアリーが本当にそのお金を盗んだのかどうかははっきりしない。
+(　　　) Mary actually stole the money or not is unclear.
+(426)	ダイエットに関する新情報は私たちに，多くの人々が考えていることが誤りであることを示している。
+New information about diet shows us that (　　　) many people think is incorrect.
+(427)	事情は50年前とは大違いである。
+Things are very different from (　　　) they were fifty years ago.
+(428)	母が私の大好物を作ってくれたのに，今朝は朝食を食べる時間がなかった。
+I didn't have time to eat breakfast this morning (　　　) (　　　) my mother cooked my favorite dish.
+(429)	これらは，彼が自分の家を建てるのに使った道具類です。
+These are the tools (　　　) (　　　) he built his own house.
+(430)	世界の多くの人々が耐えられない貧困の中で暮らしているという事実は，我々みんなの関心事であるべきだ。
+The fact (　　　) many people in the world live in intolerable poverty must concern all of us.
+(431)	あなたは急いだほうがいい，さもないとそこには間に合わないだろう。
+You had better hurry up, (　　　) you will not be there in time.
+(432)	ありがとう，ヒロミ。この本はまさに私が欲しかった本です。
+Thank you, Hiromi. This book is exactly (　　　) I wanted.
+(433)	私たちはどんなに速く走っても9時の電車には間に合わないのではないかと思います。
+I'm afraid we won't be in time for the 9:00 train (　　　) (　　　) how fast we run.
+(434)	私の知る限りでは，出荷品は来週届くだろう。
+The shipment will arrive next week as (　　　) as I know.
+(435)	彼女にはたくさん宿題があるけれども，今夜は遅くまで起きてテレビを見るつもりだ。
+(　　　) (　　　) she has a lot of homework, she is going to stay up late watching TV tonight.
+(436)	時にはどんなにつらく思えても，あなたの勉強をやり続けなさい。
+Keep on with your studies, (　　　) hard it sometimes seems.
+(437)	私の写真［絵］を，欲しい人ならだれにでもあげます。
+I will give my picture to (　　　) wants it.
+(438)	その知らせに，彼女はあまりにもショックを受けたので，もう少しで気絶するところだった。
+The news gave her (　　　) a shock that she nearly fainted.
+(439)	太陽が東から昇るので，日本は長い間「日出づる国」と呼ばれてきた。
+(　　　) the sun rises in the east, Japan has long been called "the land of the rising sun."
+(440)	どんなに健康に自信があっても，年に1度は健康診断を受けることがすすめられている。
+(　　　) confident you are about your health, you are advised to have a medical check-up once a year.
+(441)	彼女は，あなたをとても助けてくれると私が信じる女性です。
+She is the woman (　　　) I believe can help you a lot.
+(442)	美しい女性だけれども，メアリーはとても謙虚である。
+(　　　) (　　　) she is, Mary is very humble.
+(443)	そのショッピングセンターはとても大きかったので，人々が出口を見つけられないということがよくあった。
+The shopping center was (　　　) huge that people often couldn't find the exit.
+(444)	今日はとても天気のよい日なので，私たちは外に出かけるべきだ。
+It's (　　　) (　　　) (　　　) day today that we should go outside.
+(445)	もっと一生懸命勉強しなければ，あなたは試験に合格しないだろう。
+(　　　) you study much harder, you won't pass the exam.
+(446)	ある人の幼少時代の経験は，その人が大人としてどうふるまうかに影響を与えると信じる心理学者もいる。
+Some psychologists believe (　　　) a person's early childhood experiences affect how he or she behaves as an adult.
+(447)	たとえあなたがだれと話しているかわかっているとしても，電話でだれかに自分のクレジットカードの番号を言わないことが大切だ。
+It is important not to give out your credit card number to anyone over the phone (　　　) (　　　) you know who you are talking to.
+(448)	今やその国には新しい民主主義政府があるので，その国民はついに，さらなる自由を手にすることだろう。
+(　　　) (　　　) the country has a new democratic government, the people will at last have more freedom.
+(449)	彼は彼女が英語で言ったことがあまりわかっていなかったようだ。
+It seems that he did not understand (　　　) she said in English well.
+(450)	私は夏の別荘を建てるためにその土地を買った。
+I bought the land (　　　) (　　　) I could build a summer house.
+(451)	ケンは早朝のどが痛く熱があったけれども，朝食後学校へ向かった。
+(　　　) (　　　) Ken had a sore throat and a fever early in the morning, he left for school after he had breakfast.
+(452)	その仕事がどんなに大変でも，私は全力を尽くします。
+No matter (　　　) hard the task is, I'll do my best.
+(453)	その事故を引き起こしたいくつかの要因について話そう。
+Let's talk about some factors (　　　) caused the accident.
+(454)	これは，あなたの助けなしでは私がその意味を理解できなかったことわざだ。
+This is a proverb (　　　) meaning I couldn't understand without your help.
+(455)	初めは簡単に思えたことが実は難しかったということはよくある。
+(　　　) seems easy at first often turns out to be difficult.
+(456)	ロバートは，そのホールの中にいる全員に聞こえるように，大きな声で結婚式のスピーチをしました。
+Robert made a (　　　) speech at the wedding so that all the people in the hall could hear him.
+(457)	彼の両親は，冬が寒すぎたので，国の暖かい地方に引っ越した。
+His parents moved to the warmer part of the country (　　　) the winters were too cold for them.
+(458)	どんなに忙しくても，少なくとも6時間は眠るようにしなさい。
+(　　　) busy you are, never fail to sleep at least six hours.
+(459)	どうぞお気軽にご連絡ください。喜んで私にできる手助けをさせていただきます。
+Please feel free to contact me. I'm willing to give you (　　　) help I can.
+(460)	この前の冬に私は香港に行ったが，そこは私が思っていたほど暖かくなかった。
+Last winter I went to Hong Kong, (　　　) (　　　) (　　　) as warm as I had expected.
+(461)	日本では，人々はよく集団行動をとるが，このことを最もはっきり示すのは日本人が旅行するそのしかたである。
+In Japan, people often perform activities in groups, and nothing shows this more clearly than the way (　　　) (　　　) Japanese people travel.
+(462)	ケイコはとても親切な女の子なので，だれもが彼女のことが好きだ。
+Keiko is such a nice girl (　　　) everyone likes her.
+(463)	彼は2週間入院している。そういうわけで，彼は今日来ることができない。
+He has been in the hospital for two weeks. That's (　　　) he can't come today.
+(464)	事故が少なくなるように，新しい交通安全の法律が導入された。
+New traffic safety laws were introduced (　　　) (　　　) there would be fewer accidents.
+(465)	それが，彼らがその市へ引っ越せなくなった理由だった。
+That was the reason (　　　) stopped them from moving to the city.
+(466)	よくあることだが，ジョンは会議に遅刻した。
+(　　　) is often the case, John was late for the meeting.
+(467)	ヘレンは疲れすぎていなければ，毎朝ジョギングをする。
+Helen jogs every morning (　　　) she is too tired.
+(468)	夜に寒くなるといけないから，このセーターを持って行きなさい。
+Take this sweater with you in (　　　) it should get cold in the evening.
+(469)	もっと早く運転するのでなければ，コンサートに遅れるだろう。
+(　　　) you drive faster, you will be late for the concert.
+(470)	ベル氏は私が情報を得た人物だ。
+Mr. Bell is the person (　　　) (　　　) I obtained the information.
+(471)	多くの日本人は英語がよくわかっていても外国人に話しかけるのをためらう。
+Many Japanese people are hesitant to speak to foreigners (　　　) (　　　) they know English well.
+    </script>
+
+    <script id="raw-answers-data" type="text/plain">
+(1)	( Take off your coat in this room, or you will sweat ).
+(2)	I'm afraid that ( no matter how hard the president may try ), the company will go bankrupt owing to the recent economic recession.
+(3)	( He said he couldn't speak Russian, which was untrue ).
+(4)	( As far as I know, she no longer works there ).
+(5)	( There are a lot of students who have to work hard ) to pass the test.
+(6)	( There's no doubt that this woman is going to win the race ).
+(7)	The professor sternly told the student, "( Read the passage to which I referred in my lecture )."
+(8)	( These are the tools with which he built his own house ).
+(9)	The ( news gave her such a shock that she ) nearly fainted.
+(10)	Take this sweater with you ( in case it should get cold ) in the evening.
+(11)	( I don't mind lending you the book provided you give it back soon ).
+(12)	( As is often the case with children ), Fred had recovered by the time the doctor arrived.
+(13)	Please feel free to contact me. ( I'm willing to give you what help I can ).
+(14)	She asked ( me to contact her the moment ) they returned.
+(15)	( Mike likes neither coffee nor tea ).
+(16)	It's a pity that I ( can't take the course I wanted to ) because it's already full.
+(17)	( Cold as the water was ), the boys jumped into the pond.
+(18)	( Any book will do as long as it is interesting ).
+(19)	( That it took only three months to finish the project is an amazing achievement ).
+(20)	( You had better hurry up, or you will not be there in time ).
+(21)	( The shopping center was so huge that people often couldn't find the exit ).
+(22)	( Unless you study much harder, you won't pass the exam ).
+(23)	( That she believes you is hard to believe ).
+(24)	The firemen ( had trouble getting to the street where the houses were on fire ).
+(25)	I'd like to do ( what little service I can do ) for your family.
+(26)	( Things are very different from what they were ) fifty years ago.
+(27)	( Now that the country has a new democratic government ), the people will at last have more freedom.
+(28)	( Unless you drive faster, you will be late for the concert ).
+(29)	( It was such a fine day that they went hiking ).
+(30)	Robert made a loud speech at the wedding ( so that all the people in the hall could hear ) him.
+(31)	( Supposing we miss the train, what shall we do )?
+(32)	( There are often special box seats at sports stadiums, where people can watch games ) with food and drinks.
+(33)	( He's made me what I am today ).
+(34)	( However busy you are, never fail to sleep ) at least six hours.
+(35)	( The woman became more beautiful as she got older ).
+(36)	It is often said that ( rice is to Asians what wheat is to Europeans ).
+(37)	He has been in the hospital for two weeks. ( That's why he can't come today ).
+(38)	( Hardly had I spoken to him before he was gone ).
+(39)	Most of my friends immediately ( went to the museum in which his drawings were exhibited ).
+(40)	( No matter how confident you are about ) your health, you are advised to have a medical check-up once a year.
+(41)	Traveling abroad is exciting for many people. There are, however, a few who miss their own ( countries so much that they become ) homesick.
+(42)	( Although Ken had a sore throat and a fever early in the morning ), he left for school after he had breakfast.
+(43)	( Cold as the water was ), the boys jumped into the pond.
+(44)	New information about diet ( shows us that what many people ) think is incorrect.
+(45)	( The shipment will arrive next week as far as I know ).
+(46)	( The fact that a man lives next door to me does not mean ) he is my friend.
+(47)	( I bought the land so that I could build a summer house ).
+(48)	The ( news gave her such a shock that she ) nearly fainted.
+(49)	It's a pity that I ( can't take the course I wanted to ) because it's already full.
+(50)	( I'll give you the day off on condition that you work on Saturday morning ).
+(51)	( This is a proverb whose meaning I couldn't understand ) without your help.
+(52)	( Shakespeare was not only a writer but also an actor ).
+(53)	( I had better reserve a seat today in case the train is full tomorrow ).
+(54)	There was ( no objection from the man who I thought was sure to protest ).
+(55)	This ( is the house in which I was born ).
+(56)	Keep on with your studies, ( however hard it sometimes seems ).
+(57)	New information about diet ( shows us that what many people ) think is incorrect.
+(58)	He talked about ( one of Salinger's novels of which I can't remember the title ).
+(59)	( I had no sooner stepped into the train than the door closed ).
+(60)	( Those who wish to join the tour must gather ) in front of the station at 8:00 a.m.
+(61)	( Do you remember the house where you spent your childhood years )?
+(62)	It seems that ( he did not understand what she said ) in English well.
+(63)	( That was the reason which stopped them from moving to the city ).
+(64)	He ( pretended ignorance, which made me even angrier ).
+(65)	Keiko ( is such a nice girl that everyone likes her ).
+(66)	( New traffic safety laws were introduced so that there would be fewer accidents ).
+(67)	( Things are very different from what they were ) fifty years ago.
+(68)	( Any decision you make will need the president's approval ).
+(69)	( Some psychologists believe that a person's early childhood experiences affect ) how he or she behaves as an adult.
+(70)	( Whenever I had to speak in front of people ), I was frozen with fear.
+(71)	( It is important not to give out your credit card number to anyone over the phone even if you know ) who you are talking to.
+(72)	( She wanted to publish her poetry so that everyone could read it ).
+(73)	She asked ( me to contact her the moment ) they returned.
+(74)	( The school is quite different from what it was ten years ago ).
+(75)	Ghibli Museum ( is a place which I want to visit ).
+(76)	This is the campus where we studied. ( Next to it is the temple that you wanted to see ).
+(77)	( Whether Mary actually stole the money or not is unclear ).
+(78)	I'd like to do ( what little service I can do ) for your family.
+(79)	( That is the position for which Mr. Nagano has applied ), but a final decision has not yet been made.
+(80)	( Our city is now very different from what it was ) twenty years ago.
+(81)	I think that ( every time there is an earthquake, more people will come to ) realize how powerful nature is.
+(82)	( What seems easy at first ) often turns out to be difficult.
+(83)	( I will agree with whatever you decide ).
+(84)	( Tom lost what little money he had ).
+(85)	( I didn't have time to eat breakfast this morning even though my mother cooked my favorite dish ).
+(86)	You won't be able to ( drive your car until you get that flat tire fixed ).
+(87)	I'm afraid ( we won't be in time for the 9:00 train no matter how fast we run ).
+(88)	( No matter how hard the task is ), I'll do my best.
+(89)	( He is made much of wherever he goes ).
+(90)	In Japan, people often perform activities in groups, and ( nothing shows this more clearly than the way in which Japanese people travel ).
+(91)	( He said that he saw me there, which was a lie ).
+(92)	This year I had so many commitments in Tokyo that I spent most of the spring there, ( instead of going to America as I had planned ).
+(93)	Take this sweater with you ( in case it should get cold ) in the evening.
+(94)	Robert made a loud speech at the wedding ( so that all the people in the hall could hear ) him.
+(95)	( Hardly had she turned her back when the boy reached for the cookie jar ).
+(96)	( Since the sun rises in the east ), Japan has long been called "the land of the rising sun."
+(97)	I will ( give my picture to whoever wants it ).
+(98)	I still ( haven't recovered from the cold I caught ) last week.
+(99)	( It's so beautiful a day today that we should go outside ).
+(100)	( Let's talk about some factors that caused the accident ).
+(101)	Consumers are usually willing to buy ( more of an item as its price falls because they want to spend less money ).
+(102)	( No matter how confident you are about ) your health, you are advised to have a medical check-up once a year.
+(103)	( I like dogs better than cats in that they are ) more obedient.
+(104)	Mr. Sato ( is what you call a true intellectual ).
+(105)	It was a long time ( before I realized what sort of job would be ) suitable for me.
+(106)	( She is the woman who I believe can help you a lot ).
+(107)	( The fact that many people in the world live in intolerable poverty ) must concern all of us.
+(108)	( Whenever we go to our friend's house ), they entertain us with a lot of food.
+(109)	( He had neither his driver's license nor his credit card with him ).
+(110)	( You can go shopping, as long as you come home in time ) for dinner.
+(111)	I still ( haven't recovered from the cold I caught ) last week.
+(112)	Thank you, Hiromi. ( This book is exactly what I wanted ).
+(113)	( Late as it was, we decided to visit our friends ).
+(114)	( Do you remember the teacher whose daughter became an attorney )?
+(115)	( Hurry up, and you'll be able to catch up with him ).
+(116)	( Beautiful as she is, Mary is very humble ).
+(117)	( You should not do what you believe is wrong ).
+(118)	His parents ( moved to the warmer part of the country since the winters were too cold for them ).
+(119)	In Japan, people often perform activities in groups, and ( nothing shows this more clearly than the way in which Japanese people travel ).
+(120)	( Mr. Suzuki's lectures are not only interesting but also motivating ).
+(121)	( Charlie Chaplin was an actor who was best known for his work ) in silent movies.
+(122)	( Whether it is true or not will not matter much ).
+(123)	( You must not use the words whose meanings you don't understand well ).
+(124)	It was a long time ( before I realized what sort of job would be ) suitable for me.
+(125)	( Helen jogs every morning unless she is too tired ).
+(126)	( Even though she has a lot of homework, she is going to stay up late ) watching TV tonight.
+(127)	( As is often the case ), John was late for the meeting.
+(128)	( Many Japanese people are hesitant to speak to foreigners even if they know English well ).
+(129)	I think that ( every time there is an earthquake, more people will come to ) realize how powerful nature is.
+(130)	Mr. Bell ( is the person from whom I obtained the information ).
+(131)	( I'm not going to sleep tonight until I finish my homework ).
+(132)	Traveling abroad is exciting for many people. There are, however, a few who miss their own ( countries so much that they become ) homesick.
+(133)	( Last winter I went to Hong Kong, where it wasn't as warm as ) I had expected.
+(134)	She is the most romantic woman I've ever met. ( The moment I saw her, she captured my heart ).
+(135)	( Write down your password in case you should forget it ).
+(136)	what
+(137)	which
+(138)	Unless
+(139)	long
+(140)	neither, nor
+(141)	so that, could[would]
+(142)	what
+(143)	②
+(144)	③
+(145)	④
+(146)	③
+(147)	③
+(148)	①
+(149)	③
+(150)	①
+(151)	④
+(152)	①
+(153)	②
+(154)	①
+(155)	②
+(156)	③
+(157)	①
+(158)	②
+(159)	①
+(160)	④
+(161)	②
+(162)	①
+(163)	④
+(164)	①
+(165)	②
+(166)	①
+(167)	④
+(168)	②
+(169)	④
+(170)	①
+(171)	②
+(172)	④
+(173)	③
+(174)	①
+(175)	①
+(176)	④
+(177)	③
+(178)	②
+(179)	③
+(180)	①
+(181)	③
+(182)	②
+(183)	①
+(184)	①
+(185)	①
+(186)	③
+(187)	①
+(188)	③
+(189)	④
+(190)	②
+(191)	①
+(192)	④
+(193)	①
+(194)	①
+(195)	③
+(196)	①
+(197)	③
+(198)	③
+(199)	②
+(200)	②
+(201)	③
+(202)	④
+(203)	①
+(204)	③
+(205)	①
+(206)	①
+(207)	①
+(208)	③
+(209)	③
+(210)	③
+(211)	③
+(212)	②
+(213)	①
+(214)	②
+(215)	①
+(216)	①
+(217)	④
+(218)	②
+(219)	④
+(220)	③
+(221)	④
+(222)	③
+(223)	①
+(224)	②
+(225)	②
+(226)	①
+(227)	③
+(228)	④
+(229)	②
+(230)	③
+(231)	④
+(232)	④
+(233)	②
+(234)	②
+(235)	①
+(236)	③
+(237)	①
+(238)	②
+(239)	①
+(240)	④
+(241)	①
+(242)	②
+(243)	④
+(244)	①
+(245)	③
+(246)	①
+(247)	①
+(248)	③
+(249)	①
+(250)	③
+(251)	①
+(252)	③
+(253)	④
+(254)	④
+(255)	④
+(256)	①
+(257)	①
+(258)	③
+(259)	①
+(260)	②
+(261)	②
+(262)	①
+(263)	①
+(264)	④
+(265)	②
+(266)	③
+(267)	④
+(268)	①
+(269)	②
+(270)	②
+(271)	②
+(272)	④
+(273)	①
+(274)	③
+(275)	③
+(276)	①
+(277)	③
+(278)	①
+(279)	④
+(280)	②
+(281)	①
+(282)	②
+(283)	③
+(284)	①
+(285)	②
+(286)	④
+(287)	①
+(288)	②
+(289)	③
+(290)	②
+(291)	①
+(292)	③
+(293)	②
+(294)	④
+(295)	④
+(296)	①
+(297)	①
+(298)	④
+(299)	④
+(300)	③
+(301)	③
+(302)	②
+(303)	③
+(304)	①
+(305)	②
+(306)	②
+(307)	①
+(308)	②
+(309)	③
+(310)	②
+(311)	①
+(312)	②
+(313)	①
+(314)	④
+(315)	②
+(316)	③
+(317)	③
+(318)	③
+(319)	①
+(320)	①
+(321)	①
+(322)	③
+(323)	①
+(324)	④
+(325)	②
+(326)	①
+(327)	②
+(328)	③
+(329)	①
+(330)	③
+(331)	②
+(332)	③
+(333)	③
+(334)	①
+(335)	①
+(336)	③
+(337)	③
+(338)	①
+(339)	④
+(340)	③
+(341)	③
+(342)	③
+(343)	②
+(344)	③
+(345)	①
+(346)	①
+(347)	④
+(348)	②
+(349)	②
+(350)	①
+(351)	③
+(352)	that
+(353)	who
+(354)	had I spoken
+(355)	it is true or not
+(356)	in case
+(357)	nor
+(358)	but
+(359)	you make will
+(360)	where
+(361)	whatever
+(362)	Whenever
+(363)	than
+(364)	and
+(365)	that
+(366)	which
+(367)	That
+(368)	had she turned
+(369)	what
+(370)	in which
+(371)	provided
+(372)	what
+(373)	who
+(374)	who
+(375)	what
+(376)	which
+(377)	which
+(378)	every time
+(379)	Supposing
+(380)	the moment[instant]
+(381)	or
+(382)	Those who
+(383)	That
+(384)	where
+(385)	in which
+(386)	long
+(387)	but
+(388)	condition
+(389)	to which
+(390)	so that
+(391)	in case
+(392)	that
+(393)	until
+(394)	of which
+(395)	whose
+(396)	neither
+(397)	what
+(398)	what
+(399)	far
+(400)	until
+(401)	as
+(402)	which[that]
+(403)	where
+(404)	what
+(405)	as
+(406)	with
+(407)	as
+(408)	so much
+(409)	The moment
+(410)	as long as
+(411)	as
+(412)	no matter how
+(413)	what
+(414)	Whenever
+(415)	before
+(416)	I caught
+(417)	because[as/since]
+(418)	I wanted to
+(419)	which
+(420)	what
+(421)	which
+(422)	whose
+(423)	wherever
+(424)	such
+(425)	Whether
+(426)	what
+(427)	what
+(428)	even though
+(429)	with which
+(430)	that
+(431)	or
+(432)	what
+(433)	no matter
+(434)	far
+(435)	Even though
+(436)	however
+(437)	whoever
+(438)	such
+(439)	Since
+(440)	However
+(441)	who
+(442)	Beautiful as
+(443)	so
+(444)	so beautiful a
+(445)	Unless
+(446)	that
+(447)	even if
+(448)	Now that
+(449)	what
+(450)	so that
+(451)	Even though
+(452)	how
+(453)	that
+(454)	whose
+(455)	What
+(456)	loud
+(457)	since
+(458)	However
+(459)	what
+(460)	where it wasn't
+(461)	in which
+(462)	that
+(463)	why
+(464)	so that
+(465)	which
+(466)	As
+(467)	unless
+(468)	case
+(469)	Unless
+(470)	from whom
+(471)	even if[though]
+    </script>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        const GRAMMAR_GUIDES = [
+            {
+                match: /take off your coat/i,
+                title: "命令文, or ... 「〜しなさい、さもないと…」",
+                body: "<strong>〈命令文, or ＋ 主語 ＋ will ...〉</strong>は「〜しなさい、そうしないと…だろう」という警告や条件を表します。<br>・書き換え：<em>If you don't take off your coat in this room, you will sweat.</em><br>・対比：〈命令文, <strong>and</strong> ...〉は「〜しなさい、そうすれば…」。"
+            },
+            {
+                match: /the president may try/i,
+                title: "複合関係副詞 however / no matter how 「どんなに〜でも」",
+                body: "<strong>〈no matter how ＋ 形容詞・副詞 ＋ S ＋ V〉</strong>（＝ <strong>however ＋ 形容詞・副詞 ＋ S ＋ V</strong>）は譲歩の副詞節を作り、「たとえどんなに〜であろうとも」を表します。<br>ここでは <em>hard</em>（一生懸命に）という副詞が <em>how</em> の直後に置かれています。"
+            },
+            {
+                match: /speak Russian/i,
+                title: "非制限用法の関係代名詞 which（前文の内容を受ける）",
+                body: "コンマ＋<strong>which</strong> は、前にある名詞だけでなく<strong>前の節全体の内容</strong>（「彼はロシア語を話せないと言ったこと」）を先行詞として受けることができます。この用法では <em>that</em> や <em>what</em> は使えません。"
+            },
+            {
+                match: /no longer works there/i,
+                title: "as far as I know 「私が知る限りでは」",
+                body: "<strong>〈as far as ＋ S ＋ V〉</strong>は「〜する範囲では、〜する限りでは」という程度・範囲の制限を表します。<br>・頻出表現：<em>as far as I know</em>（私が知る限り）、<em>as far as I can see</em>（私が見るところでは）。<br>・<em>no longer</em> は「もはや〜ない（＝ not ... any longer）」。"
+            },
+            {
+                match: /students who have to work hard/i,
+                title: "主格の関係代名詞 who",
+                body: "先行詞が人を表す <em>students</em> であり、関係代名詞節の中で主語の働きをするため、主格の <strong>who</strong>（または <em>that</em>）を用います。<em>There are a lot of students [who have to work hard] ...</em> の構造です。"
+            },
+            {
+                match: /win the race/i,
+                title: "同格の接続詞 that（There is no doubt that ...）",
+                body: "<strong>〈There is no doubt that S ＋ V〉</strong>で「SがVするということは疑いない／間違いない」という重要構文です。この <strong>that</strong> は名詞 <em>doubt</em> の具体的な内容を説明する同格の接続詞です。"
+            },
+            {
+                match: /referred in my lecture/i,
+                title: "〈前置詞 ＋ 関係代名詞〉to which (refer to A)",
+                body: "自動詞 <strong>refer to A</strong>（Aに言及する・触れる）の目的語が関係代名詞になった形です。前置詞 <em>to</em> を関係代名詞の前に置くと <strong>to which</strong> となります。前置詞の直後には関係代名詞 <em>that</em> は使えません。"
+            },
+            {
+                match: /built his own house/i,
+                title: "〈前置詞 ＋ 関係代名詞〉with which（道具の with）",
+                body: "「その道具を使って（<em>with the tools</em>）自分の家を建てた」という関係から、道具・手段を表す前置詞 <em>with</em> と関係代名詞 <em>which</em> を合わせた <strong>with which</strong> を用います。"
+            },
+            {
+                match: /nearly fainted/i,
+                title: "such ＋ a ＋ 形容詞/名詞 ＋ that ... 「とても〜なので…」",
+                body: "<strong>〈give A such a shock that ...〉</strong>「Aにあまりにも大きなショックを与えたので…」。<br>名詞（<em>a shock</em>）を強調する場合は <strong>such</strong> を用います（形容詞・副詞単体を強調する場合は <em>so</em>）。"
+            },
+            {
+                match: /get cold in the evening/i,
+                title: "in case S (should) V 「〜するといけないから、万一〜の場合に備えて」",
+                body: "<strong>〈in case ＋ S ＋ (should) ＋ V〉</strong>は、今後の起こりうる事態に備える目的・理由を表し、「〜するといけないから、念のため」という意味になります。"
+            },
+            {
+                match: /lending you the book/i,
+                title: "条件を表す接続詞 provided (that) ... 「もし〜ならば」",
+                body: "<strong>〈provided (that) ＋ S ＋ V〉</strong>（または <em>providing (that)</em>）は、「〜という条件で、もし〜なら（＝ if）」を表す接続詞です。また <em>mind ～ing</em>（〜するのを気にする）の動名詞にも注目しましょう。"
+            },
+            {
+                match: /Fred had recovered/i,
+                title: "As is often the case with A 「Aにはよくあることだが」",
+                body: "<strong>〈As is often the case (with A)〉</strong>は、「（Aには）よくあることだが」という定型表現です。この <strong>As</strong> は主節全体の内容を先行詞にとる非制限用法の疑似関係代名詞です。"
+            },
+            {
+                match: /willing to give you/i,
+                title: "関係形容詞 what 「（できる限りの）すべての〜」",
+                body: "<strong>〈what ＋ 名詞 ＋ S ＋ can〉</strong>で「Sができる限りのすべての（名詞）」という意味を表します。<em>what help I can (give)</em> ＝ <em>all the help that I can give</em>（私にできるすべての手助け）。"
+            },
+            {
+                match: /contact her/i,
+                title: "the moment S ＋ V 「SがVするとすぐに」",
+                body: "<strong>〈the moment (that) S ＋ V〉</strong>や <strong>〈the instant S ＋ V〉</strong>は、名詞句が接続詞のように働き「〜するとすぐに、〜した瞬間に（＝ as soon as）」を表します。"
+            },
+            {
+                match: /coffee nor tea/i,
+                title: "neither A nor B 「AもBも〜ない」",
+                body: "<strong>〈neither A nor B〉</strong>は「AもBもどちらも〜ない」という全体否定の相関接続詞です。<em>not ... either A or B</em> と書き換えることができます。"
+            },
+            {
+                match: /already full/i,
+                title: "関係代名詞の目的格の省略と代不定詞 to",
+                body: "<em>the course (which/that) I wanted to (take)</em> の構造です。目的格の関係代名詞が省略されており、さらに末尾の <strong>to</strong> は繰り返しを避けるための<strong>代不定詞</strong>（<em>to take the course</em> の <em>take the course</em> を省略）です。<em>to</em> まで省略することはできません。"
+            },
+            {
+                match: /jumped into the pond/i,
+                title: "〈形容詞 ＋ as ＋ S ＋ V〉の譲歩構文「〜だけれども」",
+                body: "接続詞 <strong>as</strong> を用いて譲歩（「〜だけれども、〜にもかかわらず」）を表す場合、補語となる形容詞（ここでは <strong>Cold</strong>）を文頭に出して <strong>〈形容詞 ＋ as ＋ S ＋ V〉</strong> の語順に倒置するのが必須ルールです（＝ <em>Though the water was cold</em>）。"
+            },
+            {
+                match: /Any book will do/i,
+                title: "as long as S ＋ V 「〜しさえすれば、〜する限り」",
+                body: "<strong>〈as long as ＋ S ＋ V〉</strong>は条件を表し、「〜でありさえすれば、〜する限りは（＝ only if）」という意味になります。またここでの動詞 <strong>do</strong> は自動詞で「間に合う、役に立つ、十分である」という意味です。"
+            },
+            {
+                match: /amazing achievement/i,
+                title: "名詞節を導く接続詞 That（文頭で主語になる That節）",
+                body: "<strong>〈That ＋ S ＋ V〉</strong>が文全体の主語（S）になっており、「SがVするということ（は驚くべき偉業だ）」という意味を作ります。文頭で「〜ということ」を表す接続詞 <em>That</em> は省略できません。"
+            },
+            {
+                match: /in time/i,
+                title: "You had better ..., or ~ 「〜したほうがいい、さもないと…」",
+                body: "助動詞的表現 <strong>had better ＋ 動詞の原形</strong>（〜したほうがよい）の後ろに等位接続詞 <strong>or</strong>（さもないと）を続けた構文です。<em>in time</em> は「間に合って」。"
+            },
+            {
+                match: /find the exit/i,
+                title: "so ＋ 形容詞/副詞 ＋ that ... 「とても〜なので…」",
+                body: "<strong>〈so ＋ 形容詞（huge）＋ that S ＋ V〉</strong>で原因と結果を表します。「そのショッピングセンターはとても巨大だったので、人々はしばしば出口を見つけられなかった」。"
+            },
+            {
+                match: /pass the exam/i,
+                title: "条件の接続詞 unless 「〜でない限り、もし〜なければ」",
+                body: "<strong>〈unless ＋ S ＋ V〉</strong>は「もし〜でなければ（＝ if ... not）」を表します。条件の副詞節の中では、未来のことでも<strong>現在形</strong>（<em>study</em>）を使う点にも注意しましょう。"
+            },
+            {
+                match: /hard to believe/i,
+                title: "主語になる名詞節 That S ＋ V 「SがVするということは」",
+                body: "<strong>That she believes you</strong>（彼女があなたを信じているということ）全体が主語（単数扱い）となり、動詞 <em>is</em> に続いています。"
+            },
+            {
+                match: /houses were on fire/i,
+                title: "関係副詞 where（場所の先行詞 the street）",
+                body: "先行詞 <em>the street</em>（通り）に対して、後ろの節が「（その通りで）家々が燃えていた（<em>the houses were on fire in the street</em>）」という副詞的修飾になっているため、関係副詞 <strong>where</strong> を用います。また <em>have trouble ～ing</em>（〜するのに苦労する）も重要表現です。"
+            },
+            {
+                match: /service I can do/i,
+                title: "関係形容詞 what little ＋ 名詞 「少ないながらもすべての〜」",
+                body: "<strong>〈what little ＋ 名詞 ＋ S ＋ V〉</strong>は「少ないながらもSがVするすべての（名詞）、なけなしの〜」という重要慣用表現です。<em>what little service I can do</em> で「ささやかながら私にできるすべての奉仕（お役立ち）」。"
+            },
+            {
+                match: /fifty years ago/i,
+                title: "what S ＋ be動詞 「Sの状態・姿・ありさま」",
+                body: "関係代名詞 <strong>what</strong> の後ろに <em>they were fifty years ago</em> が続き、「50年前のそれら（事情）の状態」を表します。<em>different from A</em>（Aと異なる）の目的語になっています。"
+            },
+            {
+                match: /democratic government/i,
+                title: "原因・理由の接続詞 Now (that) S ＋ V 「今や〜なので」",
+                body: "<strong>〈Now that ＋ S ＋ V〉</strong>は、「今や〜だから、〜である以上は」という新しい状況に基づく原因・理由を表す接続詞です。"
+            },
+            {
+                match: /late for the concert/i,
+                title: "Unless S ＋ V 「〜しない限り、もし〜しなければ」",
+                body: "「命令文, or ...（<em>Drive faster, or ...</em>）」は、接続詞 <strong>unless</strong>（もし〜しなければ）を用いて <em>Unless you drive faster, ...</em> と書き換えることができます。"
+            },
+            {
+                match: /went hiking/i,
+                title: "such ＋ a ＋ 形容詞 ＋ 名詞 ＋ that ... 「とても〜な…なので」",
+                body: "名詞句 <em>a fine day</em> を強調して結果の <em>that</em> 節へつなぐには <strong>〈such ＋ a(n) ＋ 形容詞 ＋ 単数名詞 ＋ that ...〉</strong> の語順にします。（<em>so</em> を使う場合は <em>so fine a day that ...</em>）。"
+            },
+            {
+                match: / wedding /i,
+                title: "目的を表す接続詞 so that S ＋ can/could/may V 「〜できるように」",
+                body: "<strong>〈so that ＋ S ＋ can [could / may / will] V〉</strong>は目的を表し、「〜するために、〜できるように」という意味になります。"
+            },
+            {
+                match: /miss the train/i,
+                title: "条件を表す接続詞 Supposing (that) ... 「もし〜ならば」",
+                body: "分詞構文由来の接続詞 <strong>〈Supposing (that) ＋ S ＋ V〉</strong>（または <em>Suppose S + V</em>）は、「かりに〜だとしたら、もし〜なら（＝ If）」を表します。疑問文の主節とよく一緒に使われます。"
+            },
+            {
+                match: /special box seats/i,
+                title: "非制限用法の関係副詞 where 「そしてそこでは〜」",
+                body: "先行詞 <em>special box seats</em> の後ろにコンマがあり、非制限用法の関係副詞 <strong>where</strong>（＝ <em>and there / in which</em>）が「そしてそこでは人々は試合を観戦できる」と説明を補足しています。"
+            },
+            {
+                match: /what I am today/i,
+                title: "what S ＋ be動詞 「Sの人柄・現在の姿」",
+                body: "<strong>〈what I am (today)〉</strong>は「（今日の）私という人間、現在の私の姿（＝ <em>the person that I am today</em>）」を表す極めて重要な慣用表現です。第5文型 <em>make O C</em> の補語（C）になっています。"
+            },
+            {
+                match: /at least six hours/i,
+                title: "複合関係副詞 However ＋ 形容詞/副詞 ＋ S ＋ V 「どんなに〜でも」",
+                body: "<strong>〈However ＋ 形容詞（busy）＋ S ＋ V〉</strong>で「どんなにSが〜でも（＝ <em>No matter how busy you are</em>）」を表します。また主節の <em>never fail to V</em> は「必ず〜する、〜しそこなうことは決してない」という強い命令表現です。"
+            },
+            {
+                match: /more beautiful/i,
+                title: "比例を表す接続詞 as 「〜するにつれて」",
+                body: "接続詞 <strong>as</strong> の後ろに比較級（<em>got older</em>）が来ると、「〜するにつれて、〜するにしたがって」という比例・変化の意味を表します。"
+            },
+            {
+                match: /wheat is to Europeans/i,
+                title: "A is to B what C is to D 「AとBの関係はCとDの関係と同じだ」",
+                body: "<strong>〈A is to B what C is to D〉</strong>は対比・比例を表す最頻出構文で、「AのBに対する関係は、CのDに対する関係と同じである」という意味になります。"
+            },
+            {
+                match: /in the hospital for two weeks/i,
+                title: "That's why S ＋ V 「そういうわけで〜だ」",
+                body: "前の文が「原因・理由」を表し、それを受けて「そういうわけで〜だ（結果）」と述べる場合は <strong>That's why ＋ S ＋ V</strong> を用います。（逆に後ろに理由が来る場合は <em>That's because S + V</em>）。"
+            },
+            {
+                match: /before he was gone/i,
+                title: "Hardly had S ＋ 過去分詞 ... before [when] ~ 「〜するやいなや…」",
+                body: "<strong>〈Hardly [Scarcely] ＋ had ＋ S ＋ 過去分詞 ... when [before] ＋ S' ＋ 過去形〉</strong>で「〜するやいなや…した」を表します。否定の副詞 <em>Hardly</em> が文頭に出るため、<strong>had I spoken</strong> と疑問文の語順（倒置）になるのが最大のポイントです。"
+            },
+            {
+                match: /drawings were exhibited/i,
+                title: "〈前置詞 ＋ 関係代名詞〉in which（＝ where）",
+                body: "「その美術館の中で彼の絵が展示されていた（<em>his drawings were exhibited in the museum</em>）」ため、前置詞 <em>in</em> と関係代名詞 <em>which</em> を用いて <strong>in which</strong>（または関係副詞 <em>where</em>）とします。"
+            },
+            {
+                match: /medical check-up/i,
+                title: "No matter how [However] ＋ 形容詞 ＋ S ＋ V 「どんなに〜でも」",
+                body: "形容詞 <em>confident</em>（自信がある）を伴って「どんなに健康に自信があっても」という譲歩節を作ります。<strong>No matter how confident you are</strong> または <strong>However confident you are</strong> となります。"
+            },
+            {
+                match: /homesick/i,
+                title: "so much that ... 「とても〜なので…」",
+                body: "動詞 <em>miss their own countries</em>（自分の国を恋しく思う）の程度を <strong>so much</strong> で修飾し、結果を表す <strong>that</strong> 節（<em>that they become homesick</em>）へつなげています。"
+            },
+            {
+                match: /sore throat/i,
+                title: "譲歩の接続詞 although / though / even though 「〜だけれども」",
+                body: "<strong>〈Although [Though / Even though] ＋ S ＋ V〉</strong>は「〜だけれども、〜にもかかわらず」という逆接・譲歩の副詞節を導きます（前置詞 <em>despite / in spite of</em> の後ろには名詞が来るので区別しましょう）。"
+            },
+            {
+                match: /information about diet/i,
+                title: "show ＋ 人 ＋ that節 ＆ 関係代名詞 what 「〜すること・もの」",
+                body: "動詞 <em>shows us</em> の目的語となる接続詞 <strong>that</strong> 節の内部で、さらに <strong>what many people think</strong>（多くの人々が考えていること）が <em>is incorrect</em> の主語になっています。"
+            },
+            {
+                match: /shipment will arrive/i,
+                title: "as far as I know 「私の知る限りでは」",
+                body: "知識や判断の範囲を表す <strong>as far as I know</strong>（私が知る限りでは）です。<em>as long as</em>（条件：〜する限り）との使い分けが頻出です。"
+            },
+            {
+                match: /lives next door/i,
+                title: "同格の接続詞 that（The fact that S ＋ V）",
+                body: "<strong>〈The fact that ＋ 完全な文〉</strong>で「〜という事実」を表します。この <strong>that</strong> は関係代名詞ではなく同格の接続詞なので、後ろには欠けのない完全な文が続き、<em>which</em> に置き換えることはできません。"
+            },
+            {
+                match: /summer house/i,
+                title: "目的を表す接続詞 so that S ＋ could V 「〜するために」",
+                body: "<strong>〈so that ＋ S ＋ can/could/may/might ＋ V〉</strong>で「〜するために、〜できるように（＝ <em>in order that ... / for the purpose of ～ing</em>）」という目的を表します。"
+            },
+            {
+                match: /Saturday morning/i,
+                title: "on condition that S ＋ V 「〜という条件で」",
+                body: "<strong>〈on (the) condition that ＋ S ＋ V〉</strong>は「〜という条件で、もし〜ならば」を表す重要複合接続詞です。"
+            },
+            {
+                match: /proverb/i,
+                title: "所有格の関係代名詞 whose（先行詞が物の場合も可）",
+                body: "先行詞 <em>a proverb</em>（ことわざ）に対して「そのことわざの意味（<em>its meaning</em>）」を表すため、所有格の関係代名詞 <strong>whose</strong> を用いて <em>whose meaning</em> と続けます。<em>whose</em> は先行詞が人だけでなく物の場合にも使われます。"
+            },
+            {
+                match: /Shakespeare/i,
+                title: "not only A but (also) B 「AだけでなくBも」",
+                body: "<strong>〈not only A but (also) B〉</strong>は「AだけでなくBも（＝ <em>B as well as A</em>）」を表す最重要の相関接続詞です。"
+            },
+            {
+                match: /reserve a seat/i,
+                title: "in case S ＋ V 「〜するといけないから、万一〜の場合に備えて」",
+                body: "<strong>〈in case ＋ S ＋ V〉</strong>は「（未来に）〜するといけないから、万一〜の場合に備えて」を表します。副詞節なので未来の事柄（<em>tomorrow</em>）でも現在形（<em>is full</em>）を用います。"
+            },
+            {
+                match: /sure to protest/i,
+                title: "主格の関係代名詞 who ＋ 挿入節 I thought",
+                body: "<em>the man <strong>who</strong> (I thought) was sure to protest</em> の構造です。<strong>I thought</strong>（私が〜と思っていた）が関係代名詞の直後に挿入されており、<em>who</em> は後ろの動詞 <em>was sure to protest</em> の主語として働いています（そのため目的格 <em>whom</em> ではなく主格 <em>who</em> になります）。"
+            },
+            {
+                match: /I was born/i,
+                title: "〈前置詞 ＋ 関係代名詞〉in which（＝ where）",
+                body: "<em>I was born <strong>in</strong> this house.</em> の <em>this house</em> が先行詞になった形なので、前置詞 <em>in</em> を伴う <strong>in which</strong>（または関係副詞 <em>where</em>）を用います。"
+            },
+            {
+                match: /Keep on with your studies/i,
+                title: "複合関係副詞 however ＋ 形容詞 ＋ S ＋ V 「どんなに〜でも」",
+                body: "補語の形容詞 <em>hard</em>（つらい・難しい）を伴って <strong>however hard it sometimes seems</strong>（時にはそれがどんなにつらく思えても）という譲歩の副詞節を作ります。"
+            },
+            {
+                match: /Salinger's novels/i,
+                title: "物の所有格を表す of which（the title of which / of which ... the title）",
+                body: "「私はその小説のタイトルを思い出せない（<em>I can't remember the title of the novel</em>）」を関係代名詞で表す際、<em>of the novel</em> を <strong>of which</strong> として前に出した形です。"
+            },
+            {
+                match: /stepped into the train/i,
+                title: "no sooner ＋ 過去完了 ... than ＋ 過去形 「〜するやいなや…」",
+                body: "<strong>〈had no sooner ＋ 過去分詞 ... than ＋ S' ＋ 過去形〉</strong>で「〜するやいなや…した（＝ <em>as soon as</em>）」を表します。比較級の <em>sooner</em> に対応して接続詞は必ず <strong>than</strong> を使います。"
+            },
+            {
+                match: /join the tour/i,
+                title: "Those who ... 「〜する人々」",
+                body: "<strong>〈Those who ＋ V ...〉</strong>は「〜する人々（＝ <em>People who ...</em>）」を表す決まり文句です。動詞 <em>wish</em> が複数形なので単数扱いの <em>Anyone who wishes</em> などは不可です。"
+            },
+            {
+                match: /childhood years/i,
+                title: "関係副詞 where（場所の先行詞 the house）",
+                body: "「あなたはその家で子ども時代を過ごした（<em>you spent your childhood years in the house</em>）」となるため、前置詞＋名詞の働きをする関係副詞 <strong>where</strong> を用います。"
+            },
+            {
+                match: /said in English/i,
+                title: "先行詞を含む関係代名詞 what 「〜すること・もの」",
+                body: "<em>understand</em> の目的語として「彼女が英語で言ったこと（＝ <em>the thing(s) which she said in English</em>）」を表すため、先行詞を含む関係代名詞 <strong>what</strong> を用います。"
+            },
+            {
+                match: /stopped them from moving/i,
+                title: "先行詞 the reason に続く主格の関係代名詞 which / that",
+                body: "先行詞が <em>the reason</em> なのでつい関係副詞 <em>why</em> を選びたくなりますが、後ろの節（<em>stopped them from moving ...</em>）には<strong>主語が欠けています</strong>。したがって主語になれる関係代名詞 <strong>which</strong>（または <em>that</em>）が正解です！"
+            },
+            {
+                match: /pretended ignorance/i,
+                title: "前文全体を受ける非制限用法の which",
+                body: "「彼は知らないふりをした（<em>He pretended ignorance</em>）」という文全体の内容をコンマ＋<strong>which</strong> で受け、「そしてそのことが私をさらに怒らせた」と続けています。"
+            },
+            {
+                match: /such a nice girl/i,
+                title: "such ＋ a ＋ 形容詞 ＋ 名詞 ＋ that ... 「とても〜なので…」",
+                body: "<em>such a nice girl</em>（とても親切な女の子）を受けて結果を表す接続詞 <strong>that</strong> を続けます。"
+            },
+            {
+                match: /fewer accidents/i,
+                title: "目的を表す接続詞 so that ... 「〜になるように」",
+                body: "<strong>〈so that ＋ S ＋ would/could V〉</strong>で「〜になるように、〜するために」という目的を表します。"
+            },
+            {
+                match: /president's approval/i,
+                title: "関係代名詞の目的格の省略（Any decision [that] you make）",
+                body: "主語は <strong>Any decision (that) you make</strong>（あなたがたが下すどんな決定も）であり、そのあとに本動詞 <strong>will need</strong> が続く構造です。"
+            },
+            {
+                match: /childhood experiences/i,
+                title: "目的語の名詞節を導く接続詞 that",
+                body: "動詞 <em>believe</em> の目的語となる名詞節（「〜だということ」）を導く接続詞 <strong>that</strong> です。"
+            },
+            {
+                match: /frozen with fear/i,
+                title: "複合関係副詞 Whenever S ＋ V 「〜するときはいつでも」",
+                body: "<strong>〈Whenever ＋ S ＋ V〉</strong>（＝ <em>Every time S + V</em>）は「〜するときはいつでも」という時・反復の副詞節を導きます。"
+            },
+            {
+                match: /credit card number/i,
+                title: "譲歩を表す複合接続詞 even if S ＋ V 「たとえ〜だとしても」",
+                body: "<strong>〈even if ＋ S ＋ V〉</strong>は「たとえ〜だとしても」という仮定・譲歩を表します。"
+            },
+            {
+                match: /publish her poetry/i,
+                title: "目的を表す接続詞 so that S ＋ could V 「〜できるように」",
+                body: "「みんながそれを読めるように（<em>so that everyone could read it</em>）」という目的を表す <strong>so that</strong> 構文です。"
+            },
+            {
+                match: /ten years ago/i,
+                title: "what it was ten years ago 「10年前のその姿・状態」",
+                body: "<strong>〈what ＋ S ＋ be動詞〉</strong>で「Sの状態・ありさま」を表し、過去時制 <em>was</em> を使うことで「10年前のその学校の姿」という意味になります。"
+            },
+            {
+                match: /Ghibli Museum/i,
+                title: "目的格の関係代名詞 which / that（visit は他動詞！）",
+                body: "先行詞が <em>a place</em>（場所）ですが、後ろの動詞 <strong>visit</strong> は「〜を訪れる」という<strong>他動詞</strong>であり目的語が欠けています。したがって関係副詞 <em>where</em> ではなく、目的格の関係代名詞 <strong>which</strong>（または <em>that</em>）を用います！"
+            },
+            {
+                match: /campus where we studied/i,
+                title: "倒置構文（Next to it is ...）と目的格の関係代名詞 that / which",
+                body: "<em>Next to it</em>（その隣に）という場所の副詞句が文頭に出たため、<strong>is the temple</strong> と主語・動詞が倒置されています。さらに <em>the temple</em> を目的格の関係代名詞 <strong>that / which</strong>（<em>you wanted to see</em>）が修飾しています。"
+            },
+            {
+                match: /stole the money/i,
+                title: "主語になる名詞節 Whether ... or not 「〜かどうか」",
+                body: "<strong>〈Whether ＋ S ＋ V ... or not〉</strong>が文全体の主語（単数扱い）となり、「〜かどうか（は不明確だ）」を表します。文頭の主語節では <em>Whether</em> の代わりに <em>If</em> を使うことはできません。"
+            },
+            {
+                match: /Mr\. Nagano/i,
+                title: "〈前置詞 ＋ 関係代名詞〉for which (apply for A)",
+                body: "「〜に応募する」は <strong>apply for A</strong> です。前置詞 <em>for</em> が関係代名詞の前に出ているため、物を表す先行詞 <em>the position</em> を受けて <strong>for which</strong> となります。"
+            },
+            {
+                match: /twenty years ago/i,
+                title: "different from what it was 「かつての姿とは異なる」",
+                body: "<strong>what it was twenty years ago</strong> で「20年前の私たちの市の姿」を表します。"
+            },
+            {
+                match: /earthquake/i,
+                title: "接続詞 every time S ＋ V 「〜するたびに」",
+                body: "<strong>〈every time ＋ S ＋ V〉</strong>（＝ <em>whenever S + V</em>）は、名詞句が接続詞として働き「〜するたびに、〜するときはいつでも」を表します。"
+            },
+            {
+                match: /turns out to be difficult/i,
+                title: "関係代名詞 What 「〜すること・もの」",
+                body: "<strong>What seems easy at first</strong>（初めは簡単に思えること）が文全体の主語になっています。<em>turn out to be ~</em> は「実は〜だとわかる、結果的に〜になる」。"
+            },
+            {
+                match: /agree with/i,
+                title: "複合関係代名詞 whatever 「〜することは何でも」",
+                body: "前置詞 <em>with</em> の目的語として「あなたが決めることなら何でも（＝ <em>anything that you decide</em>）」という名詞節を導く複合関係代名詞 <strong>whatever</strong> を用います。"
+            },
+            {
+                match: /little money he had/i,
+                title: "関係形容詞 what little ＋ 名詞 「少ないながらもすべての〜」",
+                body: "<strong>〈what little money he had〉</strong>で「彼が持っていた少ないながらもすべてのお金（なけなしの全財産）」を表します。入試で非常に狙われやすい重要表現です。"
+            },
+            {
+                match: /favorite dish/i,
+                title: "譲歩の接続詞 even though 「〜であるにもかかわらず」",
+                body: "「母が大好物を作ってくれた」という事実に対する逆接・譲歩を表すため、接続詞 <strong>even though</strong> を用います。"
+            },
+            {
+                match: /flat tire fixed/i,
+                title: "not ... until ~ 「〜するまで…ない（〜して初めて…する）」",
+                body: "<strong>〈won't be able to ... until ~〉</strong>で「〜するまでは…できないだろう」を表します。また <em>get that flat tire fixed</em> は〈get ＋ O ＋ 過去分詞〉で「Oを〜してもらう（パンクしたタイヤを修理してもらう）」という使役・受動表現です。"
+            },
+            {
+                match: /9:00 train/i,
+                title: "no matter how ＋ 形容詞/副詞 ＋ S ＋ V 「どんなに〜でも」",
+                body: "副詞 <em>fast</em> を伴い、<strong>no matter how fast we run</strong>（私たちがどんなに速く走っても）という譲歩の副詞節を作ります。"
+            },
+            {
+                match: /task is/i,
+                title: "No matter how hard ... 「どんなに大変でも」",
+                body: "<strong>〈No matter how ＋ 形容詞（hard）＋ S ＋ V〉</strong>（＝ <em>However hard the task is</em>）で「その仕事がどんなに大変でも」を表します。"
+            },
+            {
+                match: /made much of/i,
+                title: "複合関係副詞 wherever S ＋ V 「どこへ〜しても」",
+                body: "<strong>make much of A</strong>（Aを大事にする・ちやほやする）の受動態 <em>He is made much of</em> に、譲歩の複合関係副詞 <strong>wherever he goes</strong>（彼がどこへ行っても＝ <em>no matter where he goes</em>）が続いています。"
+            },
+            {
+                match: /perform activities in groups/i,
+                title: "最上級相当表現（nothing ... more clearly than ~）と the way in which",
+                body: "<strong>〈nothing ＋ V ＋ 比較級 ＋ than A〉</strong>で「Aほど〜なものはない（Aが最も〜だ）」を表します。さらに <em>the way</em>（方法・しかた）を修飾する関係詞節として <strong>in which</strong>（または関係副詞 <em>how</em> の代わりの <em>that</em>）が使われています（<em>the way how</em> と並べることはできません）。"
+            },
+            {
+                match: /was a lie/i,
+                title: "前文の内容を受ける非制限用法の which",
+                body: "「彼はそこで私を見たと言った」という前の発言内容をコンマ＋<strong>which</strong> で受け、「そしてそれは嘘だった」と説明しています。"
+            },
+            {
+                match: /commitments in Tokyo/i,
+                title: "様態の接続詞 as 「〜したように、〜した通りに」",
+                body: "<strong>instead of ～ing</strong>（〜する代わりに、〜せずに）の後ろに、<strong>as I had planned</strong>（私が計画していた通りに）という様態の接続詞 <em>as</em> が使われています。"
+            },
+            {
+                match: /cookie jar/i,
+                title: "Hardly had S ＋ 過去分詞 ... when ~ 「〜するやいなや…」",
+                body: "準否定語 <strong>Hardly</strong> が文頭にあるため、主節が <strong>had she turned</strong> と疑問文の語順に倒置されます。接続詞 <strong>when</strong>（または <em>before</em>）とセットで「彼女が後ろを向くやいなや」を表します。"
+            },
+            {
+                match: /land of the rising sun/i,
+                title: "理由を表す接続詞 Since 「〜なので」",
+                body: "既知の事実や周知の理由（「太陽は東から昇るので」）を表す接続詞 <strong>Since</strong> です。"
+            },
+            {
+                match: /give my picture/i,
+                title: "複合関係代名詞 whoever 「〜する人には誰にでも」",
+                body: "前置詞 <em>to</em> の目的語となる節の中で、動詞 <em>wants it</em> の<strong>主語</strong>として働くため、目的格の <em>whomever</em> ではなく主格の <strong>whoever</strong>（＝ <em>anyone who</em>）を選ぶのが鉄則です！"
+            },
+            {
+                match: /recovered from the cold/i,
+                title: "目的格の関係代名詞の省略（the cold [that/which] I caught）",
+                body: "名詞 <em>the cold</em>（風邪）の後ろに <strong>I caught last week</strong>（私が先週ひいた）が直接続き、目的格の関係代名詞 <em>which / that</em> が省略されています。"
+            },
+            {
+                match: /day today that we should/i,
+                title: "so ＋ 形容詞 ＋ a(n) ＋ 単数名詞 ＋ that ... の語順",
+                body: "<strong>so</strong> を使って単数可算名詞を含む句を強調する場合、語順は必ず <strong>〈so ＋ 形容詞 ＋ a(n) ＋ 単数名詞〉</strong>（ここでは <strong>so beautiful a day</strong>）になります（<em>such</em> なら <em>such a beautiful day</em>）。"
+            },
+            {
+                match: /caused the accident/i,
+                title: "主格の関係代名詞 that / which",
+                body: "先行詞 <em>some factors</em>（いくつかの要因）を修飾し、節の中で <em>caused</em> の主語となる関係代名詞 <strong>that</strong>（または <em>which</em>）です。"
+            },
+            {
+                match: /spend less money/i,
+                title: "比例の接続詞 as と 理由の接続詞 because",
+                body: "<em>as its price falls</em>（商品の値段が下がるにつれて）の <strong>as</strong> は比例を表し、後半の <em>because they want to spend less money</em>（使うお金を少なくしたいので）の <strong>because</strong> は理由を表します。"
+            },
+            {
+                match: /more obedient/i,
+                title: "複合接続詞 in that S ＋ V 「〜という点で」",
+                body: "<strong>〈in that ＋ S ＋ V〉</strong>は「SがVするという点で、〜だから」という判断の根拠や観点を表す重要表現です。関係代名詞ではなく接続詞の用法なので超頻出です。"
+            },
+            {
+                match: /true intellectual/i,
+                title: "what you call 「いわゆる」",
+                body: "<strong>〈what you [we / they] call A〉</strong>（＝ <em>what is called A</em>）は「いわゆるA」を表す慣用表現です。"
+            },
+            {
+                match: /suitable for me/i,
+                title: "It was a long time before S ＋ V 「〜するまでに長い時間がかかった」",
+                body: "<strong>〈It was a long time before ＋ S ＋ 過去形〉</strong>で「長い時間が経ってからようやくSがVした」＝「SがVするまでにずいぶん時間がかかった」を表す重要構文です。"
+            },
+            {
+                match: /can help you a lot/i,
+                title: "主格の関係代名詞 who ＋ 挿入節 I believe",
+                body: "<em>the woman <strong>who</strong> (I believe) can help you a lot</em> の構造です。<em>I believe</em> は挿入節であり、関係代名詞は後ろの <em>can help</em> の主語なので主格の <strong>who</strong> になります。"
+            },
+            {
+                match: /intolerable poverty/i,
+                title: "同格の接続詞 that（The fact that ...）",
+                body: "主語 <em>The fact</em> の内容を説明する同格の接続詞 <strong>that</strong> です。<em>The fact [that many people ... live in intolerable poverty]</em> 全体が主語となり、助動詞 <em>must concern</em> につながります。"
+            },
+            {
+                match: /entertain us/i,
+                title: "複合関係副詞 Whenever 「〜するときはいつでも」",
+                body: "<strong>Whenever we go to our friend's house</strong>（私たちが友人の家に行くときはいつでも）という反復・時を表す副詞節を作ります。"
+            },
+            {
+                match: /driver's license/i,
+                title: "neither A nor B 「AもBも〜ない」",
+                body: "<strong>neither</strong> his driver's license <strong>nor</strong> his credit card で「運転免許証もクレジットカードも（どちらも持っていなかった）」を表します。"
+            },
+            {
+                match: /in time for dinner/i,
+                title: "条件の複合接続詞 as long as 「〜する限り、〜しさえすれば」",
+                body: "<strong>〈as long as ＋ S ＋ V〉</strong>で「〜する限り、〜という条件なら」を表します。"
+            },
+            {
+                match: /Thank you, Hiromi/i,
+                title: "先行詞を含む関係代名詞 what 「（私が欲しかった）もの」",
+                body: "<strong>exactly what I wanted</strong> で「まさに私が欲しかったもの（本）」を表します。<em>what</em> の直前に副詞 <em>exactly</em> や <em>just</em> を置いて強調することができます。"
+            },
+            {
+                match: /visit our friends/i,
+                title: "〈形容詞/副詞 ＋ as ＋ S ＋ V〉の譲歩構文「〜だったけれども」",
+                body: "<strong>Late as it was</strong>（＝ <em>Though it was late</em>）は、補語の形容詞 <em>Late</em> を文頭に出した譲歩の倒置構文で「遅い時間だったけれども」という意味になります。"
+            },
+            {
+                match: /became an attorney/i,
+                title: "所有格の関係代名詞 whose",
+                body: "先行詞 <em>the teacher</em> に対して「その先生の娘さん（<em>his/her daughter</em>）」とつなぐため、所有格の関係代名詞 <strong>whose</strong> を用います。"
+            },
+            {
+                match: /catch up with him/i,
+                title: "命令文, and ... 「〜しなさい、そうすれば…」",
+                body: "<strong>〈命令文, and ＋ S ＋ will ...〉</strong>で「〜しなさい、そうすれば…だろう」を表します。<em>catch up with A</em> は「Aに追いつく」。"
+            },
+            {
+                match: /Mary is very humble/i,
+                title: "〈形容詞 ＋ as ＋ S ＋ V〉「〜だけれども」",
+                body: "<strong>Beautiful as she is</strong>（＝ <em>Though she is beautiful</em>）は形容詞を前に出した譲歩構文です。（なお名詞を前に出す場合は無冠詞にして <em>Woman as she is</em> のように言います）。"
+            },
+            {
+                match: /believe is wrong/i,
+                title: "先行詞を含む関係代名詞 what ＋ 挿入節 you believe",
+                body: "<strong>what (you believe) is wrong</strong> で「（あなたが）間違っていると信じること」を表します。<em>you believe</em> を取り除くと <em>what is wrong</em> となり、<em>what</em> が <em>is</em> の主語として働いていることがわかります。"
+            },
+            {
+                match: /warmer part of the country/i,
+                title: "理由を表す接続詞 since 「〜なので」",
+                body: "<strong>since</strong> the winters were too cold for them（冬が彼らには寒すぎたので）と理由を表す接続詞 <em>since</em> が使われています。（<em>due to</em> は前置詞句なので後ろに節は置けません）。"
+            },
+            {
+                match: /Mr\. Suzuki's lectures/i,
+                title: "not only A but also B 「AだけでなくBも」",
+                body: "形容詞 <em>interesting</em> と <em>motivating</em> を <strong>not only ... but also ~</strong> でつないだ形です。"
+            },
+            {
+                match: /Charlie Chaplin/i,
+                title: "主格の関係代名詞 who",
+                body: "先行詞 <em>an actor</em> を修飾する主格の関係代名詞 <strong>who</strong> です。"
+            },
+            {
+                match: /matter much/i,
+                title: "名詞節を導く接続詞 Whether ... or not 「〜かどうか」",
+                body: "<strong>Whether it is true or not</strong>（それが本当かどうか）が文全体の主語になり、助動詞＋動詞 <em>will not matter much</em>（あまり重要ではないだろう）につながります。名詞節なので疑問文の語順（<em>is it</em>）にはなりません。"
+            },
+            {
+                match: /meanings you don't understand/i,
+                title: "所有格の関係代名詞 whose",
+                body: "先行詞 <em>the words</em>（単語）に対して「その単語の意味（<em>their meanings</em>）」を表すため、所有格の <strong>whose</strong> を用いて <em>whose meanings you don't understand well</em> とします。"
+            },
+            {
+                match: /Helen jogs/i,
+                title: "条件の接続詞 unless 「〜でない限り」",
+                body: "<strong>unless she is too tired</strong>（彼女が疲れすぎていない限り／疲れすぎていなければ）と例外条件を表します。"
+            },
+            {
+                match: /watching TV tonight/i,
+                title: "譲歩の接続詞 Even though 「〜だけれども」",
+                body: "節（<em>she has a lot of homework</em>）を導いて「〜だけれども」を表す接続詞 <strong>Even though</strong> です（<em>In spite of</em> は前置詞なので後ろに S+V は続けられません）。"
+            },
+            {
+                match: /late for the meeting/i,
+                title: "As is often the case 「よくあることだが」",
+                body: "<strong>As is often the case</strong> は「よくあることだが」という慣用表現で、非制限用法の疑似関係代名詞 <strong>As</strong> が使われています。"
+            },
+            {
+                match: /speak to foreigners/i,
+                title: "譲歩の複合接続詞 even if / even though 「たとえ〜でも」",
+                body: "<strong>even if [though] they know English well</strong>（たとえ英語がよくわかっていても）という譲歩の副詞節を作ります。<em>be hesitant to V</em> は「Vするのをためらう」。"
+            },
+            {
+                match: /obtained the information/i,
+                title: "〈前置詞 ＋ 関係代名詞〉from whom (obtain A from B)",
+                body: "「その人物から情報を得た（<em>I obtained the information from the person</em>）」なので、前置詞 <em>from</em> と目的格の関係代名詞 <em>whom</em> を合わせて <strong>from whom</strong> となります。"
+            },
+            {
+                match: /finish my homework/i,
+                title: "not ... until ~ 「〜するまで…ない」",
+                body: "継続の接続詞 <strong>until</strong> を否定文とともに使い、「宿題を終えるまで（今夜は眠らないつもりだ）」という完了の期限を表します。"
+            },
+            {
+                match: /Hong Kong/i,
+                title: "非制限用法の関係副詞 where（コンマ ＋ where ＋ S ＋ V）",
+                body: "先行詞 <em>Hong Kong</em> をコンマ＋<strong>where</strong>（＝ <em>and there</em>）で受け、その後に主語と動詞を備えた節 <strong>it wasn't</strong>（<em>where it wasn't as warm as I had expected</em>）が続きます。<em>where</em> は副詞なので主語 <em>it</em> を省略することはできません！"
+            },
+            {
+                match: /captured my heart/i,
+                title: "接続詞的に働く The moment S ＋ V 「〜した瞬間に」",
+                body: "<strong>The moment I saw her</strong> で「私が彼女を見た瞬間に（＝ <em>As soon as I saw her</em>）」を表します。"
+            },
+            {
+                match: /password/i,
+                title: "in case S (should) V 「〜するといけないから」",
+                body: "<strong>in case you should forget it</strong> で「万一それを忘れるといけないから」という予防・備えの目的を表します。"
+            }
+        ];
+
+        function parseAllQuestions() {
+            const qText = document.getElementById('raw-questions-data').textContent;
+            const aText = document.getElementById('raw-answers-data').textContent;
+
+            // Parse Answers Map
+            const ansMap = {};
+            const aLines = aText.split('\n');
+            for (const line of aLines) {
+                const m = line.match(/^\((\d+)\)\s*(.+)$/);
+                if (m) {
+                    ansMap[parseInt(m[1], 10)] = m[2].trim();
+                }
+            }
+
+            // Parse Questions
+            const qLines = qText.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+            let currentPart = 'A';
+            const rawBlocks = [];
+            let currentBlock = null;
+
+            for (const line of qLines) {
+                if (line === '[ A ]') { currentPart = 'A'; continue; }
+                if (line === '[ B ]') { currentPart = 'B'; continue; }
+                if (line === '[ C ]') { currentPart = 'C'; continue; }
+                if (line === '[ D ]') { currentPart = 'D'; continue; }
+
+                const qStart = line.match(/^\((\d+)\)\s*(.+)$/);
+                if (qStart) {
+                    if (currentBlock) rawBlocks.push(currentBlock);
+                    currentBlock = {
+                        id: parseInt(qStart[1], 10),
+                        part: currentPart,
+                        lines: [qStart[2].trim()]
+                    };
+                } else if (currentBlock) {
+                    currentBlock.lines.push(line);
+                }
+            }
+            if (currentBlock) rawBlocks.push(currentBlock);
+
+            // Transform blocks into structured question objects
+            const questions = rawBlocks.map(block => {
+                const id = block.id;
+                const part = block.part;
+                const rawAns = ansMap[id] || '';
+                let jp = '';
+                let enPrompt = '';
+                let source = '';
+                let extraWord = false;
+                let scrambledChoices = [];
+                let mcOptions = [];
+                let correctChoiceIndex = -1;
+                let fullSentence = '';
+                let blankAnswers = [];
+
+                // Extract source like 〈センター試験〉
+                const extractSource = (str) => {
+                    const sm = str.match(/〈([^〉]+)〉/);
+                    if (sm) {
+                        source = sm[1];
+                        return str.replace(/〈[^〉]+〉/g, '').trim();
+                    }
+                    return str;
+                };
+
+                if (part === 'A') {
+                    let line0 = extractSource(block.lines[0]);
+                    let line1 = block.lines[1] ? extractSource(block.lines[1]) : '';
+
+                    if (line0.includes('［1語不要］')) {
+                        extraWord = true;
+                        line0 = line0.replace('［1語不要］', '').trim();
+                    }
+
+                    if (line1) {
+                        jp = line0;
+                        enPrompt = line1;
+                    } else {
+                        enPrompt = line0;
+                    }
+
+                    // Extract scrambled words inside ( ... / ... )
+                    const pMatch = enPrompt.match(/\(([^)]*\/[^)]*)\)/);
+                    if (pMatch) {
+                        scrambledChoices = pMatch[1].split('/').map(s => s.trim()).filter(Boolean);
+                        enPrompt = enPrompt.replace(pMatch[0], ' ( 　　並べかえ箇所　　 ) ');
+                    }
+
+                    // Extract target answer inside ( ... ) from rawAns
+                    const ansMatch = rawAns.match(/\(([^)]+)\)/);
+                    const targetPhrase = ansMatch ? ansMatch[1].trim() : rawAns;
+                    fullSentence = rawAns.replace(/\(\s*/g, '').replace(/\s*\)/g, '');
+
+                    return {
+                        id, part, jp, enPrompt, source, extraWord,
+                        scrambledChoices,
+                        targetPhrase,
+                        fullSentence
+                    };
+                }
+
+                if (part === 'B') {
+                    const line0 = extractSource(block.lines.join(' '));
+                    enPrompt = line0;
+                    jp = '(a)と(b)の英文がほぼ同じ意味になるように空所に適切な語を入れなさい。';
+                    // rawAns e.g. "what", "neither, nor", "so that, could[would]"
+                    const parts = rawAns.split(',').map(s => s.trim());
+                    if (id === 141) {
+                        blankAnswers = ['so', 'that', 'could[would]'];
+                    } else {
+                        blankAnswers = parts;
+                    }
+                    fullSentence = enPrompt;
+                    return {
+                        id, part, jp, enPrompt, source,
+                        blankAnswers,
+                        fullSentence
+                    };
+                }
+
+                if (part === 'C') {
+                    enPrompt = extractSource(block.lines[0]);
+                    const optLine = block.lines[1] ? extractSource(block.lines[1]) : '';
+                    const optMatches = optLine.split(/(?=[①②③④])/).map(s => s.trim()).filter(Boolean);
+                    mcOptions = optMatches.map(o => o.replace(/^[①②③④]\s*/, '').trim());
+
+                    const numMap = { '①': 0, '②': 1, '③': 2, '④': 3 };
+                    const firstChar = rawAns.charAt(0);
+                    correctChoiceIndex = numMap[firstChar] !== undefined ? numMap[firstChar] : 0;
+
+                    const chosenText = mcOptions[correctChoiceIndex] || '';
+                    fullSentence = enPrompt.replace(/\(\s*　*\s*\)/, ` ${chosenText} `);
+
+                    return {
+                        id, part, jp, enPrompt, source,
+                        mcOptions,
+                        correctChoiceIndex,
+                        fullSentence
+                    };
+                }
+
+                if (part === 'D') {
+                    jp = extractSource(block.lines[0]);
+                    enPrompt = block.lines[1] ? extractSource(block.lines[1]) : '';
+                    // Count how many (　　　) in enPrompt
+                    const blankCount = (enPrompt.match(/\(　+\)/g) || []).length;
+                    const ansTokens = rawAns.split(/\s+/);
+                    if (blankCount === 1) {
+                        blankAnswers = [rawAns];
+                    } else {
+                        blankAnswers = ansTokens;
+                    }
+
+                    let filled = enPrompt;
+                    for (const token of blankAnswers) {
+                        const cleanToken = token.replace(/\[.*?\]/g, '');
+                        filled = filled.replace(/\(　+\)/, cleanToken);
+                    }
+                    fullSentence = filled;
+
+                    return {
+                        id, part, jp, enPrompt, source,
+                        blankAnswers,
+                        fullSentence
+                    };
+                }
+            });
+
+            // Cross-populate missing Japanese translations for Part C (and any Part A) by matching English sentences
+            const jpLookup = [];
+            for (const q of questions) {
+                if (q.jp && q.part !== 'B') {
+                    const norm = q.fullSentence.toLowerCase().replace(/[^a-z0-9]/g, '');
+                    jpLookup.push({ norm, jp: q.jp });
+                }
+            }
+
+            for (const q of questions) {
+                if (!q.jp) {
+                    const norm = q.fullSentence.toLowerCase().replace(/[^a-z0-9]/g, '');
+                    const found = jpLookup.find(item => item.norm === norm || item.norm.includes(norm.slice(0, 25)) || norm.includes(item.norm.slice(0, 25)));
+                    if (found) {
+                        q.jp = found.jp;
+                    }
+                }
+                // Attach grammar explanation
+                const guide = GRAMMAR_GUIDES.find(g => g.match.test(q.fullSentence) || g.match.test(q.enPrompt));
+                if (guide) {
+                    q.grammarTitle = guide.title;
+                    q.grammarBody = guide.body;
+                } else {
+                    q.grammarTitle = "重要構文・文脈の把握";
+                    q.grammarBody = "主節と従属節のつながり（接続詞・関係詞）および動詞の語法に注意して文構造を把握しましょう。";
+                }
+            }
+
+            return questions;
+        }
+
+        const ALL_QUESTIONS = parseAllQuestions();
+
+        // App State
+        const state = {
+            status: {},      // { [qId]: 'correct' | 'incorrect' }
+            bookmarks: {},   // { [qId]: true }
+            lastQuestionId: 1,
+            currentQueue: [],
+            currentIndex: 0,
+            selectedScrambledIndices: [],
+            answeredCurrent: false
+        };
+
+        // Firebase Initialization (Following strict rules)
+        let db = null;
+        let auth = null;
+        let currentUser = null;
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'power-frame-850-app';
+
+        async function initCloudStorage() {
+            const syncIcon = document.getElementById('sync-icon');
+            const syncText = document.getElementById('sync-text');
+
+            try {
+                if (typeof __firebase_config === 'undefined' || !__firebase_config) {
+                    syncText.textContent = "セッション保存中";
+                    return;
+                }
+                const firebaseConfig = JSON.parse(__firebase_config);
+                const fbApp = initializeApp(firebaseConfig);
+                db = getFirestore(fbApp);
+                auth = getAuth(fbApp);
+
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+
+                onAuthStateChanged(auth, async (user) => {
+                    currentUser = user;
+                    if (user) {
+                        await loadProgressFromCloud();
+                    }
+                });
+            } catch (err) {
+                console.warn("Cloud init fallback:", err);
+                syncText.textContent = "一時保存モード";
+            }
+        }
+
+        async function loadProgressFromCloud() {
+            if (!currentUser || !db) return;
+            const syncText = document.getElementById('sync-text');
+            try {
+                syncText.textContent = "データ同期中...";
+                const docRef = doc(db, 'artifacts', appId, 'users', currentUser.uid, 'progress', 'main');
+                const snap = await getDoc(docRef);
+                if (snap.exists()) {
+                    const data = snap.data();
+                    if (data.statusJson) state.status = JSON.parse(data.statusJson);
+                    if (data.bookmarksJson) state.bookmarks = JSON.parse(data.bookmarksJson);
+                    if (data.lastQuestionId) state.lastQuestionId = data.lastQuestionId;
+                }
+                syncText.textContent = "自動保存ON";
+                updateDashboardUI();
+            } catch (e) {
+                console.error("Load error:", e);
+                syncText.textContent = "オフライン";
+            }
+        }
+
+        let saveTimeout = null;
+        function saveProgressToCloud() {
+            updateDashboardUI();
+            if (!currentUser || !db) return;
+            const syncText = document.getElementById('sync-text');
+            syncText.textContent = "保存中...";
+
+            if (saveTimeout) clearTimeout(saveTimeout);
+            saveTimeout = setTimeout(async () => {
+                try {
+                    const docRef = doc(db, 'artifacts', appId, 'users', currentUser.uid, 'progress', 'main');
+                    await setDoc(docRef, {
+                        statusJson: JSON.stringify(state.status),
+                        bookmarksJson: JSON.stringify(state.bookmarks),
+                        lastQuestionId: state.lastQuestionId,
+                        updatedAt: Date.now()
+                    });
+                    syncText.textContent = "自動保存済み";
+                } catch (e) {
+                    console.error("Save error:", e);
+                    syncText.textContent = "保存エラー";
+                }
+            }, 500);
+        }
+
+        function updateDashboardUI() {
+            const total = ALL_QUESTIONS.length;
+            let correctCount = 0;
+            let incorrectCount = 0;
+            let bookmarkCount = Object.keys(state.bookmarks).filter(k => state.bookmarks[k]).length;
+
+            const partCounts = { A: { total: 135, ok: 0 }, B: { total: 7, ok: 0 }, C: { total: 209, ok: 0 }, D: { total: 120, ok: 0 } };
+
+            for (const q of ALL_QUESTIONS) {
+                const st = state.status[q.id];
+                if (st === 'correct') {
+                    correctCount++;
+                    partCounts[q.part].ok++;
+                } else if (st === 'incorrect') {
+                    incorrectCount++;
+                }
+            }
+
+            const pct = Math.round((correctCount / total) * 100);
+            document.getElementById('stat-total-percent').textContent = `${pct}%`;
+            document.getElementById('stat-total-count').textContent = `${correctCount} / ${total}問`;
+            document.getElementById('stat-total-bar').style.width = `${pct}%`;
+
+            document.getElementById('stat-correct-count').textContent = correctCount;
+            document.getElementById('stat-incorrect-count').textContent = incorrectCount;
+            document.getElementById('stat-bookmark-count').textContent = bookmarkCount;
+
+            document.getElementById('badge-incorrect').textContent = `${incorrectCount}問`;
+            document.getElementById('badge-bookmarked').textContent = `${bookmarkCount}問`;
+
+            // Update Part Progress Bars
+            ['A', 'B', 'C', 'D'].forEach(p => {
+                const c = partCounts[p];
+                const pPct = Math.round((c.ok / c.total) * 100);
+                document.getElementById(`prog-text-${p}`).textContent = `${c.ok} / ${c.total} (${pPct}%)`;
+                document.getElementById(`prog-bar-${p}`).style.width = `${pPct}%`;
+            });
+
+            // Resume button
+            const resumeContainer = document.getElementById('resume-container');
+            if (state.lastQuestionId && state.lastQuestionId > 1) {
+                resumeContainer.classList.remove('hidden');
+                const lastQ = ALL_QUESTIONS.find(q => q.id === state.lastQuestionId);
+                document.getElementById('resume-label').textContent = `問題 (${state.lastQuestionId}) [Part ${lastQ ? lastQ.part : 'A'}] から`;
+            } else {
+                resumeContainer.classList.add('hidden');
+            }
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-msg').textContent = msg;
+            toast.classList.remove('hidden');
+            toast.classList.add('flex');
+            setTimeout(() => {
+                toast.classList.add('hidden');
+                toast.classList.remove('flex');
+            }, 2600);
+        }
+
+        const app = {
+            showDashboard() {
+                document.getElementById('view-quiz').classList.add('hidden');
+                document.getElementById('view-dashboard').classList.remove('hidden');
+                updateDashboardUI();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            },
+
+            startSection(part, onlyUnfinished) {
+                let list = ALL_QUESTIONS.filter(q => q.part === part);
+                if (onlyUnfinished) {
+                    list = list.filter(q => state.status[q.id] !== 'correct');
+                    if (list.length === 0) {
+                        showToast(`Part ${part} はすべての問題がマスター済みです！`);
+                        return;
+                    }
+                }
+                state.currentQueue = list.map(q => q.id);
+
+                // Find first unanswered or last active in this part
+                let startIdx = 0;
+                if (!onlyUnfinished) {
+                    const firstUnfinished = list.findIndex(q => state.status[q.id] !== 'correct');
+                    if (firstUnfinished !== -1) startIdx = firstUnfinished;
+                }
+                state.currentIndex = startIdx;
+                this.openQuizView();
+            },
+
+            startSpecialMode(mode) {
+                if (mode === 'incorrect') {
+                    const ids = ALL_QUESTIONS.filter(q => state.status[q.id] === 'incorrect').map(q => q.id);
+                    if (ids.length === 0) {
+                        showToast("現在、要復習（間違えた問題）はありません！");
+                        return;
+                    }
+                    state.currentQueue = ids;
+                    state.currentIndex = 0;
+                    this.openQuizView();
+                } else if (mode === 'bookmarked') {
+                    const ids = ALL_QUESTIONS.filter(q => state.bookmarks[q.id]).map(q => q.id);
+                    if (ids.length === 0) {
+                        showToast("ブックマークされた問題がありません。問題画面の★ボタンで登録できます。");
+                        return;
+                    }
+                    state.currentQueue = ids;
+                    state.currentIndex = 0;
+                    this.openQuizView();
+                } else if (mode === 'random10') {
+                    let pool = ALL_QUESTIONS.filter(q => state.status[q.id] !== 'correct').map(q => q.id);
+                    if (pool.length === 0) pool = ALL_QUESTIONS.map(q => q.id);
+                    // Shuffle
+                    const shuffled = [...pool].sort(() => Math.random() - 0.5).slice(0, 10);
+                    state.currentQueue = shuffled;
+                    state.currentIndex = 0;
+                    this.openQuizView();
+                }
+            },
+
+            resumeLastSession() {
+                const targetId = state.lastQuestionId || 1;
+                const targetQ = ALL_QUESTIONS.find(q => q.id === targetId) || ALL_QUESTIONS[0];
+                const partList = ALL_QUESTIONS.filter(q => q.part === targetQ.part).map(q => q.id);
+                state.currentQueue = partList;
+                state.currentIndex = Math.max(0, partList.indexOf(targetQ.id));
+                this.openQuizView();
+            },
+
+            jumpToQuestion(qId) {
+                this.closeJumpModal();
+                const targetQ = ALL_QUESTIONS.find(q => q.id === qId);
+                if (!targetQ) return;
+                const partList = ALL_QUESTIONS.filter(q => q.part === targetQ.part).map(q => q.id);
+                state.currentQueue = partList;
+                state.currentIndex = Math.max(0, partList.indexOf(qId));
+                this.openQuizView();
+            },
+
+            openQuizView() {
+                document.getElementById('view-dashboard').classList.add('hidden');
+                document.getElementById('view-quiz').classList.remove('hidden');
+                this.renderCurrentQuestion();
+            },
+
+            getCurrentQuestion() {
+                const qId = state.currentQueue[state.currentIndex];
+                return ALL_QUESTIONS.find(q => q.id === qId);
+            },
+
+            renderCurrentQuestion() {
+                const q = this.getCurrentQuestion();
+                if (!q) return;
+
+                state.lastQuestionId = q.id;
+                state.answeredCurrent = false;
+                state.selectedScrambledIndices = [];
+                saveProgressToCloud();
+
+                // Header badges
+                const partNames = {
+                    A: 'Part [A] 語句整序',
+                    B: 'Part [B] 同意文書き換え',
+                    C: 'Part [C] 四択問題',
+                    D: 'Part [D] 空所補充'
+                };
+                document.getElementById('quiz-part-badge').textContent = partNames[q.part] || `Part ${q.part}`;
+                document.getElementById('quiz-q-number').textContent = `問題 (${q.id})`;
+
+                const srcBadge = document.getElementById('quiz-source-badge');
+                if (q.source) {
+                    srcBadge.textContent = `出典：${q.source}`;
+                    srcBadge.classList.remove('hidden');
+                } else {
+                    srcBadge.classList.add('hidden');
+                }
+
+                // Status pill
+                const stPill = document.getElementById('quiz-status-pill');
+                const st = state.status[q.id];
+                if (st === 'correct') {
+                    stPill.textContent = '✓ マスター済';
+                    stPill.className = 'text-xs px-2.5 py-0.5 rounded-full font-bold bg-emerald-100 text-emerald-700';
+                } else if (st === 'incorrect') {
+                    stPill.textContent = '要復習';
+                    stPill.className = 'text-xs px-2.5 py-0.5 rounded-full font-bold bg-rose-100 text-rose-700';
+                } else {
+                    stPill.className = 'hidden';
+                }
+
+                // Bookmark button state
+                const bmBtn = document.getElementById('btn-bookmark');
+                if (state.bookmarks[q.id]) {
+                    bmBtn.className = 'p-2 rounded-xl border border-amber-300 bg-amber-50 text-amber-500 transition';
+                } else {
+                    bmBtn.className = 'p-2 rounded-xl border border-slate-200 text-slate-400 hover:text-amber-500 hover:bg-amber-50 transition';
+                }
+
+                // Queue progress & prev/next buttons
+                document.getElementById('quiz-queue-progress').textContent = `${state.currentIndex + 1} / ${state.currentQueue.length}`;
+                document.getElementById('btn-prev-q').disabled = state.currentIndex <= 0;
+                document.getElementById('btn-next-q').disabled = state.currentIndex >= state.currentQueue.length - 1;
+
+                // Instructions & Japanese box
+                const jpBox = document.getElementById('quiz-jp-box');
+                if (q.jp) {
+                    jpBox.textContent = q.jp;
+                    jpBox.classList.remove('hidden');
+                } else {
+                    jpBox.classList.add('hidden');
+                }
+
+                const instEl = document.getElementById('quiz-instruction');
+                if (q.part === 'A') instEl.textContent = '[ A ] （　）内の語句を並べかえて英文を完成させなさい。';
+                if (q.part === 'B') instEl.textContent = '[ B ] (a)(b)の英文がほぼ同じ意味になるように空所に適切な語を入れなさい。';
+                if (q.part === 'C') instEl.textContent = '[ C ] 空所に入れるのに最も適切なものを1つ選びなさい。';
+                if (q.part === 'D') instEl.textContent = '[ D ] 日本語の意味に合うように空所に適切な語を入れなさい。';
+
+                // Render Prompt
+                document.getElementById('quiz-en-prompt').innerHTML = q.enPrompt
+                    .replace(/\( 　　並べかえ箇所　　 \)/g, '<span class="inline-block bg-indigo-100 text-indigo-700 px-3 py-0.5 rounded-lg text-sm font-bold mx-1">（ 並べかえ箇所 ）</span>')
+                    .replace(/\(　+\)/g, '<span class="inline-block border-b-2 border-indigo-500 px-4 mx-1 text-indigo-600 font-bold">( 　　 )</span>')
+                    .replace(/\(\s*\)/g, '<span class="inline-block border-b-2 border-indigo-500 px-4 mx-1 text-indigo-600 font-bold">( 　　 )</span>');
+
+                // Hide all interaction areas first
+                document.getElementById('area-part-a').classList.add('hidden');
+                document.getElementById('area-part-c').classList.add('hidden');
+                document.getElementById('area-part-bd').classList.add('hidden');
+                document.getElementById('area-feedback').classList.add('hidden');
+
+                if (q.part === 'A') {
+                    this.setupPartA(q);
+                } else if (q.part === 'C') {
+                    this.setupPartC(q);
+                } else {
+                    this.setupPartBD(q);
+                }
+            },
+
+            setupPartA(q) {
+                const areaA = document.getElementById('area-part-a');
+                areaA.classList.remove('hidden');
+
+                const extraNote = document.getElementById('part-a-extra-note');
+                if (q.extraWord) extraNote.classList.remove('hidden');
+                else extraNote.classList.add('hidden');
+
+                this.renderScrambledUI(q);
+            },
+
+            renderScrambledUI(q) {
+                const answerZone = document.getElementById('part-a-answer-zone');
+                const poolZone = document.getElementById('part-a-pool');
+                answerZone.innerHTML = '';
+                poolZone.innerHTML = '';
+
+                if (state.selectedScrambledIndices.length === 0) {
+                    const ph = document.createElement('span');
+                    ph.className = 'text-xs sm:text-sm text-slate-400 select-none';
+                    ph.textContent = '下の語群から順番にタップして英文を作ってください';
+                    answerZone.appendChild(ph);
+                } else {
+                    state.selectedScrambledIndices.forEach((choiceIdx, pos) => {
+                        const chip = document.createElement('button');
+                        chip.type = 'button';
+                        chip.className = 'word-chip bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-3.5 py-2 rounded-xl text-sm shadow-xs flex items-center gap-1.5';
+                        chip.innerHTML = `<span>${q.scrambledChoices[choiceIdx]}</span> <i class="fa-solid fa-xmark text-xs opacity-75"></i>`;
+                        chip.onclick = () => {
+                            if (state.answeredCurrent) return;
+                            state.selectedScrambledIndices.splice(pos, 1);
+                            this.renderScrambledUI(q);
+                        };
+                        answerZone.appendChild(chip);
+                    });
+                }
+
+                q.scrambledChoices.forEach((word, idx) => {
+                    const isUsed = state.selectedScrambledIndices.includes(idx);
+                    const btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.disabled = isUsed || state.answeredCurrent;
+                    btn.className = isUsed
+                        ? 'word-chip bg-slate-100 text-slate-300 border border-slate-200 font-medium px-3.5 py-2 rounded-xl text-sm cursor-not-allowed'
+                        : 'word-chip bg-white hover:bg-indigo-50 text-slate-800 border-2 border-slate-200 hover:border-indigo-400 font-semibold px-3.5 py-2 rounded-xl text-sm shadow-2xs';
+                    btn.textContent = word;
+                    btn.onclick = () => {
+                        if (isUsed || state.answeredCurrent) return;
+                        state.selectedScrambledIndices.push(idx);
+                        this.renderScrambledUI(q);
+                    };
+                    poolZone.appendChild(btn);
+                });
+            },
+
+            clearScrambled() {
+                if (state.answeredCurrent) return;
+                state.selectedScrambledIndices = [];
+                this.renderScrambledUI(this.getCurrentQuestion());
+            },
+
+            checkAnswerA() {
+                if (state.answeredCurrent) return;
+                const q = this.getCurrentQuestion();
+                if (state.selectedScrambledIndices.length === 0) {
+                    showToast("語群をタップして解答を作成してください。");
+                    return;
+                }
+                const userSentence = state.selectedScrambledIndices.map(i => q.scrambledChoices[i]).join(' ');
+                const normalize = (s) => s.toLowerCase().replace(/[^a-z0-9']/g, '');
+
+                let isCorrect = normalize(userSentence) === normalize(q.targetPhrase);
+                // Handle alternate valid answers in Part A (e.g. Q40 However vs No matter how, Q42 Although vs Even though)
+                if (!isCorrect && q.id === 40 && normalize(userSentence) === normalize("however confident you are about")) isCorrect = true;
+                if (!isCorrect && q.id === 42 && normalize(userSentence) === normalize("even though ken had a sore throat and a fever early in the morning")) isCorrect = true;
+                if (!isCorrect && q.id === 76 && normalize(userSentence) === normalize("next to it is the temple which you wanted to see")) isCorrect = true;
+
+                this.recordAndShowFeedback(q, isCorrect, userSentence);
+            },
+
+            setupPartC(q) {
+                const areaC = document.getElementById('area-part-c');
+                areaC.classList.remove('hidden');
+                const optContainer = document.getElementById('part-c-options');
+                optContainer.innerHTML = '';
+
+                const labels = ['①', '②', '③', '④'];
+                q.mcOptions.forEach((optText, idx) => {
+                    const btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.className = 'w-full text-left p-4 rounded-xl border-2 border-slate-200 hover:border-indigo-500 hover:bg-indigo-50/40 bg-white transition flex items-center gap-3 font-semibold text-slate-800';
+                    btn.innerHTML = `
+                        <span class="w-7 h-7 rounded-lg bg-slate-100 text-slate-700 font-bold flex items-center justify-center text-sm">${labels[idx]}</span>
+                        <span class="text-sm sm:text-base">${optText}</span>
+                    `;
+                    btn.onclick = () => {
+                        if (state.answeredCurrent) return;
+                        const isCorrect = idx === q.correctChoiceIndex;
+                        // Highlight buttons
+                        Array.from(optContainer.children).forEach((child, cIdx) => {
+                            child.disabled = true;
+                            if (cIdx === q.correctChoiceIndex) {
+                                child.className = 'w-full text-left p-4 rounded-xl border-2 border-emerald-500 bg-emerald-50 flex items-center gap-3 font-bold text-emerald-900';
+                            } else if (cIdx === idx && !isCorrect) {
+                                child.className = 'w-full text-left p-4 rounded-xl border-2 border-rose-500 bg-rose-50 flex items-center gap-3 font-bold text-rose-900';
+                            } else {
+                                child.className = 'w-full text-left p-4 rounded-xl border border-slate-200 bg-slate-50 opacity-50 flex items-center gap-3 text-slate-500';
+                            }
+                        });
+                        this.recordAndShowFeedback(q, isCorrect, optText);
+                    };
+                    optContainer.appendChild(btn);
+                });
+            },
+
+            setupPartBD(q) {
+                const areaBD = document.getElementById('area-part-bd');
+                areaBD.classList.remove('hidden');
+                document.getElementById('bd-word-bank').classList.add('hidden');
+
+                const container = document.getElementById('bd-inputs-container');
+                container.innerHTML = '';
+
+                q.blankAnswers.forEach((ans, idx) => {
+                    const wrap = document.createElement('div');
+                    wrap.className = 'flex items-center gap-2 flex-1 min-w-[140px]';
+                    wrap.innerHTML = `
+                        <span class="text-xs font-bold text-slate-400">(${idx + 1})</span>
+                        <input type="text" data-blank-idx="${idx}" placeholder="英単語を入力..."
+                            class="bd-input w-full px-3.5 py-2.5 rounded-xl border-2 border-slate-200 focus:border-indigo-500 focus:outline-none font-semibold text-slate-800 text-sm sm:text-base"
+                            autocomplete="off" autocapitalize="off" spellcheck="false">
+                    `;
+                    container.appendChild(wrap);
+                });
+
+                // Enter key support
+                const inputs = container.querySelectorAll('.bd-input');
+                inputs.forEach((inp, idx) => {
+                    inp.addEventListener('keydown', (e) => {
+                        if (e.key === 'Enter') {
+                            e.preventDefault();
+                            if (idx < inputs.length - 1) inputs[idx + 1].focus();
+                            else this.checkAnswerBD();
+                        }
+                    });
+                });
+            },
+
+            showWordBankHint() {
+                const q = this.getCurrentQuestion();
+                if (!q || !q.blankAnswers) return;
+                const bankDiv = document.getElementById('bd-word-bank');
+                const chipsDiv = document.getElementById('bd-bank-chips');
+                bankDiv.classList.remove('hidden');
+                chipsDiv.innerHTML = '';
+
+                // Build choices from correct answers + distractors
+                const correctWords = q.blankAnswers.map(a => a.replace(/\[.*?\]/g, '').trim());
+                const distractors = ['which', 'what', 'that', 'where', 'whose', 'however', 'whatever', 'unless', 'since', 'until', 'though', 'provided', 'case', 'moment'];
+                const poolSet = new Set(correctWords);
+                for (const d of distractors) {
+                    if (poolSet.size >= Math.max(6, correctWords.length + 3)) break;
+                    if (! Array.from(poolSet).some(w => w.toLowerCase() === d.toLowerCase())) {
+                        poolSet.add(d);
+                    }
+                }
+                const shuffled = Array.from(poolSet).sort(() => Math.random() - 0.5);
+
+                shuffled.forEach(word => {
+                    const btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.className = 'bg-white hover:bg-amber-100 text-slate-800 border border-amber-300 font-semibold px-3 py-1.5 rounded-lg text-xs sm:text-sm shadow-2xs transition';
+                    btn.textContent = word;
+                    btn.onclick = () => {
+                        const inputs = Array.from(document.querySelectorAll('.bd-input'));
+                        const emptyInp = inputs.find(i => i.value.trim() === '') || inputs[inputs.length - 1];
+                        if (emptyInp) {
+                            emptyInp.value = word;
+                            emptyInp.focus();
+                        }
+                    };
+                    chipsDiv.appendChild(btn);
+                });
+            },
+
+            checkAnswerBD() {
+                if (state.answeredCurrent) return;
+                const q = this.getCurrentQuestion();
+                const inputs = Array.from(document.querySelectorAll('.bd-input'));
+                const userVals = inputs.map(i => i.value.trim());
+
+                if (userVals.some(v => v === '')) {
+                    showToast("すべての空欄に入力してください（ヒントボタンも使えます）。");
+                    return;
+                }
+
+                const matchBlank = (userVal, rawExpected) => {
+                    // rawExpected may be like "could[would]" or "the moment[instant]" or "because[as/since]"
+                    const candidates = [];
+                    const bracketMatch = rawExpected.match(/^([^\[]+)\[([^\]]+)\]$/);
+                    if (bracketMatch) {
+                        candidates.push(bracketMatch[1]);
+                        bracketMatch[2].split('/').forEach(c => candidates.push(c));
+                    } else {
+                        candidates.push(rawExpected);
+                    }
+                    return candidates.some(c => c.trim().toLowerCase() === userVal.toLowerCase());
+                };
+
+                let allCorrect = true;
+                inputs.forEach((inp, idx) => {
+                    const ok = matchBlank(userVals[idx], q.blankAnswers[idx]);
+                    if (!ok) allCorrect = false;
+                    inp.disabled = true;
+                    inp.className = ok
+                        ? 'bd-input w-full px-3.5 py-2.5 rounded-xl border-2 border-emerald-500 bg-emerald-50 font-bold text-emerald-900 text-sm sm:text-base'
+                        : 'bd-input w-full px-3.5 py-2.5 rounded-xl border-2 border-rose-500 bg-rose-50 font-bold text-rose-900 text-sm sm:text-base';
+                });
+
+                this.recordAndShowFeedback(q, allCorrect, userVals.join(' '));
+            },
+
+            giveUpCurrent() {
+                if (state.answeredCurrent) return;
+                const q = this.getCurrentQuestion();
+                this.recordAndShowFeedback(q, false, null);
+            },
+
+            recordAndShowFeedback(q, isCorrect, userAnswerText) {
+                state.answeredCurrent = true;
+                state.status[q.id] = isCorrect ? 'correct' : 'incorrect';
+                saveProgressToCloud();
+
+                // Update status pill immediately
+                const stPill = document.getElementById('quiz-status-pill');
+                if (isCorrect) {
+                    stPill.textContent = '✓ マスター済';
+                    stPill.className = 'text-xs px-2.5 py-0.5 rounded-full font-bold bg-emerald-100 text-emerald-700';
+                } else {
+                    stPill.textContent = '要復習リストに追加';
+                    stPill.className = 'text-xs px-2.5 py-0.5 rounded-full font-bold bg-rose-100 text-rose-700';
+                }
+
+                const fbArea = document.getElementById('area-feedback');
+                const banner = document.getElementById('feedback-banner');
+                const icon = document.getElementById('feedback-icon');
+                const title = document.getElementById('feedback-title');
+                const subtitle = document.getElementById('feedback-subtitle');
+
+                fbArea.classList.remove('hidden');
+
+                let correctDisplay = '';
+                if (q.part === 'A') correctDisplay = q.targetPhrase;
+                else if (q.part === 'C') correctDisplay = `${['①', '②', '③', '④'][q.correctChoiceIndex]} ${q.mcOptions[q.correctChoiceIndex]}`;
+                else correctDisplay = q.blankAnswers.join(' ');
+
+                if (isCorrect) {
+                    banner.className = 'p-4 rounded-xl flex flex-wrap items-center justify-between gap-3 bg-emerald-50 border border-emerald-200 text-emerald-900';
+                    icon.className = 'w-10 h-10 rounded-full bg-emerald-500 text-white flex items-center justify-center text-xl font-bold';
+                    icon.innerHTML = '<i class="fa-solid fa-check"></i>';
+                    title.textContent = '正解！素晴らしいです！';
+                    subtitle.textContent = `正解：${correctDisplay}`;
+                } else {
+                    banner.className = 'p-4 rounded-xl flex flex-wrap items-center justify-between gap-3 bg-rose-50 border border-rose-200 text-rose-900';
+                    icon.className = 'w-10 h-10 rounded-full bg-rose-500 text-white flex items-center justify-center text-xl font-bold';
+                    icon.innerHTML = '<i class="fa-solid fa-xmark"></i>';
+                    title.textContent = userAnswerText ? '惜しい！復習リストに登録しました' : '解答と解説を確認しましょう';
+                    subtitle.textContent = `正解：${correctDisplay}`;
+                }
+
+                document.getElementById('exp-full-sentence').textContent = q.fullSentence;
+                document.getElementById('exp-jp-translation').textContent = q.jp || '';
+                document.getElementById('exp-grammar-title').textContent = q.grammarTitle;
+                document.getElementById('exp-grammar-body').innerHTML = q.grammarBody;
+            },
+
+            speakCurrentSentence() {
+                const q = this.getCurrentQuestion();
+                if (!q || !('speechSynthesis' in window)) {
+                    showToast("お使いのブラウザは音声読み上げに対応していません。");
+                    return;
+                }
+                window.speechSynthesis.cancel();
+                let textToRead = q.fullSentence;
+                // If Part B has (a) and (b), clean it up
+                textToRead = textToRead.replace(/\(a\)|\(b\)/g, '').replace(/\(　+\)/g, '');
+                const utter = new SpeechSynthesisUtterance(textToRead);
+                utter.lang = 'en-US';
+                utter.rate = 0.92;
+                window.speechSynthesis.speak(utter);
+            },
+
+            prevQuestion() {
+                if (state.currentIndex > 0) {
+                    state.currentIndex--;
+                    this.renderCurrentQuestion();
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                }
+            },
+
+            nextQuestion() {
+                if (state.currentIndex < state.currentQueue.length - 1) {
+                    state.currentIndex++;
+                    this.renderCurrentQuestion();
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                } else {
+                    showToast("このセットの最後の問題に到達しました！");
+                    this.showDashboard();
+                }
+            },
+
+            toggleBookmarkCurrent() {
+                const q = this.getCurrentQuestion();
+                if (!q) return;
+                if (state.bookmarks[q.id]) {
+                    delete state.bookmarks[q.id];
+                    showToast(`問題 (${q.id}) のブックマークを解除しました`);
+                } else {
+                    state.bookmarks[q.id] = true;
+                    showToast(`問題 (${q.id}) をブックマークに追加しました`);
+                }
+                this.renderCurrentQuestion();
+            },
+
+            openJumpModal() {
+                document.getElementById('modal-jump').classList.remove('hidden');
+                this.renderJumpGrid('ALL');
+            },
+
+            closeJumpModal() {
+                document.getElementById('modal-jump').classList.add('hidden');
+            },
+
+            renderJumpGrid(filterPart) {
+                document.querySelectorAll('.jump-tab').forEach(btn => {
+                    if (btn.dataset.tab === filterPart) {
+                        btn.className = 'jump-tab px-3 py-1.5 rounded-lg font-bold bg-indigo-600 text-white';
+                    } else {
+                        btn.className = 'jump-tab px-3 py-1.5 rounded-lg font-medium bg-white border border-slate-200 text-slate-600 hover:bg-slate-100';
+                    }
+                });
+
+                const grid = document.getElementById('jump-grid-container');
+                grid.innerHTML = '';
+
+                const filtered = filterPart === 'ALL' ? ALL_QUESTIONS : ALL_QUESTIONS.filter(q => q.part === filterPart);
+                filtered.forEach(q => {
+                    const st = state.status[q.id];
+                    const bm = state.bookmarks[q.id];
+                    const btn = document.createElement('button');
+                    btn.type = 'button';
+
+                    let colorClass = 'bg-slate-100 hover:bg-slate-200 text-slate-700 border-slate-200';
+                    if (st === 'correct') colorClass = 'bg-emerald-500 hover:bg-emerald-600 text-white border-emerald-600 font-bold';
+                    else if (st === 'incorrect') colorClass = 'bg-rose-500 hover:bg-rose-600 text-white border-rose-600 font-bold';
+
+                    btn.className = `relative h-10 rounded-xl border text-xs flex items-center justify-center transition ${colorClass}`;
+                    btn.innerHTML = `${q.id}${bm ? '<span class="absolute -top-1 -right-1 text-[10px] text-amber-400 drop-shadow">★</span>' : ''}`;
+                    btn.onclick = () => this.jumpToQuestion(q.id);
+                    grid.appendChild(btn);
+                });
+            },
+
+            openResetModal() {
+                document.getElementById('modal-reset').classList.remove('hidden');
+            },
+
+            closeResetModal() {
+                document.getElementById('modal-reset').classList.add('hidden');
+            },
+
+            confirmReset() {
+                state.status = {};
+                state.bookmarks = {};
+                state.lastQuestionId = 1;
+                saveProgressToCloud();
+                this.closeResetModal();
+                updateDashboardUI();
+                showToast("学習履歴をリセットしました。");
+            }
+        };
+
+        window.app = app;
+
+        // Initialize on load
+        window.addEventListener('DOMContentLoaded', () => {
+            updateDashboardUI();
+            initCloudStorage();
+        });
+    </script>
+</body>
+</html>
